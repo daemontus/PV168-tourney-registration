@@ -1,4 +1,4 @@
 PV168_tourney
 =============
 
-Project fro Simnar of Java Programming
+Project fro Seminar of Java Programming
