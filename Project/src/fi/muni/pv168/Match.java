@@ -16,11 +16,11 @@ public class Match {
 		this(null, null, null, 0, null);
 	}
 
-	public Match(Long id, Knight knight, Discipline discipline, int number, Integer points) {
+	public Match(Long id, Knight knight, Discipline discipline, int startNumber, Integer points) {
 		this.id = id;
         this.knight = knight;
         this.discipline = discipline;
-        this.startNumber = number;
+        this.startNumber = startNumber;
         this.points = points;
 	}
 
