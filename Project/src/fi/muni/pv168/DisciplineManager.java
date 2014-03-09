@@ -1,34 +1,48 @@
 package fi.muni.pv168;
 
+import java.util.Date;
 import java.util.List;
 
+/**
+ * <p>Manager responsible for storage of Disciplines.</p>
+ */
 public interface DisciplineManager {
 
 	/**
-	 * 
-	 * @param discipline
+	 * Create new discipline.
+	 * @param discipline Discipline to create.
 	 */
 	void createDiscipline(Discipline discipline);
 
 	/**
-	 * 
-	 * @param id
+	 * Get discipline by id.
+	 * @param id Id of discipline.
+     * @return Discipline with specified id, or null if not found.
 	 */
 	Discipline getDisciplineById(Long id);
 
+    /**
+     * Get all disciplines in database.
+     * @return All available disciplines
+     */
 	List<Discipline> findAllDisciplines();
 
-	List<Discipline> getDisciplinesByDay();
+    /**
+     * Return all disciplines that are held during one day.
+     * @param day Day we want disciplines for.
+     * @return All disciplines for specified day.
+     */
+	List<Discipline> getDisciplinesByDay(Date day);
 
-	/**
-	 * 
-	 * @param discipline
-	 */
+    /**
+     * Update discipline with new data.
+     * @param discipline Discipline with new data.
+     */
 	void updateDiscipline(Discipline discipline);
 
 	/**
-	 * 
-	 * @param discipline
+	 * Delete discipline.
+	 * @param discipline Discipline you want to delete from database.
 	 */
 	void deleteDiscipline(Discipline discipline);
 

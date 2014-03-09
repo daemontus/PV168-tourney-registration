@@ -2,72 +2,54 @@ package fi.muni.pv168;
 
 import java.util.List;
 
-public class MatchManagerImpl {
+/**
+ * <p>Implementation of MatchManager using JDBC.</p>
+ */
+public class MatchManagerImpl implements MatchManager{
 
-	/**
-	 * 
-	 * @param match
-	 */
+	@Override
 	public void createMatch(Match match) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.createMatch
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param match
-	 */
+	@Override
 	public void updateMatch(Match match) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.updateMatch
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param match
-	 */
+	@Override
 	public void deleteMatch(Match match) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.deleteMatch
 		throw new UnsupportedOperationException();
 	}
 
+    @Override
 	public List<Match> findAllMatches() {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.findAllMatches
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param id
-	 */
+	@Override
 	public Match getMatchById(Long id) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.getMatchById
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param knight
-	 */
+	@Override
 	public List<Match> findMatchesForKnight(Knight knight) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.findMatchesForKnight
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param discipline
-	 */
+	@Override
 	public List<Match> findMatchesForDiscipline(Discipline discipline) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.findMatchesForDiscipline
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param knight
-	 * @param discipline
-	 */
+	@Override
 	public Match findMatchForKnightAndDiscipline(Knight knight, Discipline discipline) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.findMatchForKnightAndDiscipline
 		throw new UnsupportedOperationException();

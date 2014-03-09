@@ -1,50 +1,44 @@
 package fi.muni.pv168;
 
+import java.util.Date;
 import java.util.List;
 
-public class DisciplineManagerImpl {
+/**
+ * <p>Implementation of Discipline Manager using JDBC.</p>
+ */
+public class DisciplineManagerImpl implements DisciplineManager {
 
-	/**
-	 * 
-	 * @param discipline
-	 */
+    @Override
 	public void createDiscipline(Discipline discipline) {
 		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.createDiscipline
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param id
-	 */
+    @Override
 	public Discipline getDisciplineById(Long id) {
 		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.getDisciplineById
 		throw new UnsupportedOperationException();
 	}
 
+    @Override
 	public List<Discipline> findAllDisciplines() {
 		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.findAllDisciplines
 		throw new UnsupportedOperationException();
 	}
 
-	public List<Discipline> getDisciplineByDay() {
+    @Override
+	public List<Discipline> getDisciplinesByDay(Date day) {
 		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.getDisciplineByDay
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param discipline
-	 */
+	@Override
 	public void updateDiscipline(Discipline discipline) {
 		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.updateDiscipline
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param discipline
-	 */
+	@Override
 	public void deleteDiscipline(Discipline discipline) {
 		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.deleteDiscipline
 		throw new UnsupportedOperationException();

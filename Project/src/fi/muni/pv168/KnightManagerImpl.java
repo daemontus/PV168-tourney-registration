@@ -2,44 +2,36 @@ package fi.muni.pv168;
 
 import java.util.List;
 
-public class KnightManagerImpl {
+/**
+ * <p>Implementation of KnightManager using JDBC.</p>
+ */
+public class KnightManagerImpl implements KnightManager {
 
-	/**
-	 * 
-	 * @param knight
-	 */
+    @Override
 	public void createKnight(Knight knight) {
 		// TODO - implement fi.muni.pv168.KnightManagerImpl.createKnight
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param id
-	 */
-	public Knight getKnightbyId(Long id) {
+	@Override
+	public Knight getKnightById(Long id) {
 		// TODO - implement fi.muni.pv168.KnightManagerImpl.getKnightbyId
 		throw new UnsupportedOperationException();
 	}
 
+    @Override
 	public List<Knight> findAllKnights() {
 		// TODO - implement fi.muni.pv168.KnightManagerImpl.findAllKnights
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param knight
-	 */
+	@Override
 	public void updateKnight(Knight knight) {
 		// TODO - implement fi.muni.pv168.KnightManagerImpl.updateKnight
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * 
-	 * @param knight
-	 */
+	@Override
 	public void deleteKnight(Knight knight) {
 		// TODO - implement fi.muni.pv168.KnightManagerImpl.deleteKnight
 		throw new UnsupportedOperationException();

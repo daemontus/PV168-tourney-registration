@@ -2,32 +2,41 @@ package fi.muni.pv168;
 
 import java.util.List;
 
+/**
+ * <p>Manager responsible for storage of Knights.</p>
+ */
 public interface KnightManager {
 
-	/**
-	 * 
-	 * @param knight
-	 */
+    /**
+     * Create new knight.
+     * @param knight Knight to create.
+     */
 	void createKnight(Knight knight);
 
-	/**
-	 * 
-	 * @param id
-	 */
+    /**
+     * Get knight by id.
+     * @param id Id of knight.
+     * @return Knight with specified id, or null if not found.
+     */
 	Knight getKnightById(Long id);
 
+    /**
+     * Get all knights in database.
+     * @return All available knights
+     */
 	List<Knight> findAllKnights();
 
-	/**
-	 * 
-	 * @param knight
-	 */
+
+    /**
+     * Update knight with new data.
+     * @param knight Knight with new data.
+     */
 	void updateKnight(Knight knight);
 
-	/**
-	 * 
-	 * @param knight
-	 */
+    /**
+     * Delete knight.
+     * @param knight Knight you want to delete from database.
+     */
 	void deleteKnight(Knight knight);
 
 }
