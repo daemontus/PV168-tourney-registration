@@ -5,6 +5,8 @@ import java.util.Date;
 /**
  * <p>This is an entity class representing one discipline of tourney.
  * Every discipline has synthetic id, name, starting and ending time and maximum number of participants.</p>
+ *
+ * @version 09/03/2014ß
  */
 public class Discipline {
 
