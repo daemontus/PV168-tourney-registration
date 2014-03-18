@@ -38,7 +38,7 @@ public class KnightManagerImplTest {
     }
 
     @Test
-    public void getAllMatches() {
+    public void getAllKnights() {
 
         Knight knight1 = new Knight(null, "TestName", "TestCastle", new Date(0), "TestHeraldry");
         manager.createKnight(knight1);
@@ -52,7 +52,7 @@ public class KnightManagerImplTest {
     }
 
     @Test
-    public void updateMatch() {
+    public void updateKnightName() {
 
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
@@ -64,13 +64,53 @@ public class KnightManagerImplTest {
         manager.updateKnight(knight);
         assertDeepEquals(knight, manager.getKnightById(id));
 
+
+        //are other records affected?
+        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+    }
+
+    @Test
+    public void updateKnightCastle() {
+
+        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        manager.createKnight(knight);
+        manager.createKnight(knight2);
+        Long id = knight.getId();
+
         knight.setCastle(knight2.getCastle());   //edit castle
         manager.updateKnight(knight);
         assertDeepEquals(knight, manager.getKnightById(id));
 
+        //are other records affected?
+        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+    }
+
+    @Test
+    public void updateKnightBorn() {
+
+        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        manager.createKnight(knight);
+        manager.createKnight(knight2);
+        Long id = knight.getId();
+
         knight.setBorn(knight2.getBorn());   //edit born
         manager.updateKnight(knight);
         assertDeepEquals(knight, manager.getKnightById(id));
+
+        //are other records affected?
+        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+    }
+
+    @Test
+    public void updateKnightHeraldry() {
+
+        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        manager.createKnight(knight);
+        manager.createKnight(knight2);
+        Long id = knight.getId();
 
         knight.setHeraldry(knight2.getHeraldry()); //set not null points
         manager.updateKnight(knight);
@@ -80,8 +120,10 @@ public class KnightManagerImplTest {
         assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
     }
 
+
+
     @Test
-    public void deleteMatch() {
+    public void deleteKnight() {
 
 
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
