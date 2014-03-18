@@ -1,7 +1,9 @@
 package fi.muni.pv168;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.*;
 
@@ -20,6 +22,9 @@ public class MatchManagerImplTest {
     public void setUp() {
         manager = new MatchManagerImpl();
     }
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void createMatch() {
@@ -55,67 +60,56 @@ public class MatchManagerImplTest {
     public void invalidPointsBelowZeroCreate() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {   // points below 0
-            manager.createMatch(new Match(null, knight, discipline, 3, -1));
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(new Match(null, knight, discipline, 3, -1));
     }
 
     @Test
     public void invalidNumberBelowZeroCreate() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {   // number below 0
-            manager.createMatch(new Match(null, knight, discipline, -1, 120));
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(new Match(null, knight, discipline, -1, 120));
     }
 
     @Test
     public void invalidNullDisciplineCreate() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        try {   // discipline null
-            manager.createMatch(new Match(null, knight, null, 5, 120));
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(new Match(null, knight, null, 5, 120));
     }
 
     @Test
     public void invalidNullKnightCreate() {
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {   // knight null
-            manager.createMatch(new Match(null, null, discipline, 5, 120));
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(new Match(null, null, discipline, 5, 120));
     }
 
     @Test
     public void invalidIdCreate() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {   // id not null
-            manager.createMatch(new Match(1L, knight, discipline, 5, 120));
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(new Match(1L, knight, discipline, 5, 120));
     }
 
     @Test
     public void invalidNullCreate() {
-        try {
-            manager.createMatch(null);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(null);
     }
 
     @Test
     public void getAllMatches() {
 
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
 
         Match match1 = new Match(null, knight, discipline, 5, 120);
         manager.createMatch(match1);
-        Match match2 = new Match(null, knight, discipline, 4, null);
+        Match match2 = new Match(null, knight2, discipline, 4, null);
         manager.createMatch(match2);
 
         List<Match> expected = Arrays.asList(match1, match2);
@@ -129,9 +123,10 @@ public class MatchManagerImplTest {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
+        Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Date(1), new Date(1001*60), 4);
 
         Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight, discipline, 5, null);
+        Match match2 = new Match(null, knight, discipline2, 5, null);
         manager.createMatch(match);
         manager.createMatch(match2);
         Long id = match.getId();
@@ -147,11 +142,12 @@ public class MatchManagerImplTest {
     @Test
     public void updateMatchDiscipline() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
         Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Date(1), new Date(1001*60), 4);
 
         Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight, discipline, 5, null);
+        Match match2 = new Match(null, knight2, discipline, 5, null);
         manager.createMatch(match);
         manager.createMatch(match2);
         Long id = match.getId();
@@ -167,10 +163,11 @@ public class MatchManagerImplTest {
     @Test
     public void updateMatchPointsNull() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
 
         Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight, discipline, 5, null);
+        Match match2 = new Match(null, knight2, discipline, 5, null);
         manager.createMatch(match);
         manager.createMatch(match2);
         Long id = match.getId();
@@ -186,10 +183,11 @@ public class MatchManagerImplTest {
     @Test
     public void updateMatchPoints() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
 
         Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight, discipline, 5, null);
+        Match match2 = new Match(null, knight2, discipline, 5, null);
         manager.createMatch(match);
         manager.createMatch(match2);
         Long id = match.getId();
@@ -204,12 +202,12 @@ public class MatchManagerImplTest {
 
     @Test
     public void updateMatchStartNumber() {
-
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
 
         Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight, discipline, 5, null);
+        Match match2 = new Match(null, knight2, discipline, 5, null);
         manager.createMatch(match);
         manager.createMatch(match2);
         Long id = match.getId();
@@ -224,10 +222,8 @@ public class MatchManagerImplTest {
 
     @Test
     public void invalidNullUpdate() {
-        try {
-            manager.updateMatch(null);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.updateMatch(null);
     }
 
     @Test
@@ -238,13 +234,11 @@ public class MatchManagerImplTest {
         Match match = new Match(null, knight, discipline, 5, 120);
         manager.createMatch(match);
         Long id = match.getId();
+        Match m = manager.getMatchById(id);
+        m.setId(null);
 
-        try {
-            Match m = manager.getMatchById(id);
-            m.setId(null);
-            manager.updateMatch(m);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.updateMatch(m);
     }
 
     @Test
@@ -255,13 +249,11 @@ public class MatchManagerImplTest {
         Match match = new Match(null, knight, discipline, 5, 120);
         manager.createMatch(match);
         Long id = match.getId();
+        Match m = manager.getMatchById(id);
+        m.setKnight(null);
 
-        try {
-            Match m = manager.getMatchById(id);
-            m.setKnight(null);
-            manager.updateMatch(m);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.updateMatch(m);
     }
 
     @Test
@@ -272,13 +264,11 @@ public class MatchManagerImplTest {
         Match match = new Match(null, knight, discipline, 5, 120);
         manager.createMatch(match);
         Long id = match.getId();
+        Match m = manager.getMatchById(id);
+        m.setDiscipline(null);
 
-        try {
-            Match m = manager.getMatchById(id);
-            m.setDiscipline(null);
-            manager.updateMatch(m);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.updateMatch(m);
     }
 
     @Test
@@ -289,14 +279,11 @@ public class MatchManagerImplTest {
         Match match = new Match(null, knight, discipline, 5, 120);
         manager.createMatch(match);
         Long id = match.getId();
+        Match m = manager.getMatchById(id);
+        m.setStartNumber(-1);
 
-        try {
-            Match m = manager.getMatchById(id);
-            m.setStartNumber(-1);
-            manager.updateMatch(m);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
-
+        exception.expect(IllegalArgumentException.class);
+        manager.updateMatch(m);
     }
 
     @Test
@@ -307,13 +294,11 @@ public class MatchManagerImplTest {
         Match match = new Match(null, knight, discipline, 5, 120);
         manager.createMatch(match);
         Long id = match.getId();
+        Match m = manager.getMatchById(id);
+        m.setPoints(-1);
 
-        try {
-            Match m = manager.getMatchById(id);
-            m.setPoints(-1);
-            manager.updateMatch(m);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.updateMatch(m);
     }
 
     @Test
@@ -339,30 +324,26 @@ public class MatchManagerImplTest {
     public void invalidNonExistentDelete() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {
-            Match match = new Match(null, knight, discipline, 5, 120);
-            assertNull(manager.getMatchById(match.getId()));
-            manager.deleteMatch(match);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+
+        Match match = new Match(null, knight, discipline, 5, 120);
+        assertNull(manager.getMatchById(match.getId()));
+
+        exception.expect(IllegalArgumentException.class);
+        manager.deleteMatch(match);
     }
 
     @Test
     public void invalidNullDelete() {
-        try {
-            manager.deleteMatch(null);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.deleteMatch(null);
     }
 
     @Test
     public void invalidNullIdDelete() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {
-            manager.deleteMatch(new Match(null, knight, discipline, 5, 120));
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.deleteMatch(new Match(null, knight, discipline, 5, 120));
     }
 
     @Test
@@ -399,10 +380,8 @@ public class MatchManagerImplTest {
 
     @Test
     public void findByNullKnight() {
-        try {
-            manager.findMatchesForKnight(null);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchesForKnight(null);
     }
 
     @Test
@@ -439,10 +418,8 @@ public class MatchManagerImplTest {
 
     @Test
     public void findByNullDiscipline() {
-        try {
-            manager.findMatchesForDiscipline(null);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchesForDiscipline(null);
     }
 
     @Test
@@ -452,6 +429,9 @@ public class MatchManagerImplTest {
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
         Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Date(1), new Date(1001*60), 4);
 
+        assertNull(manager.findMatchForKnightAndDiscipline(knight, discipline2));
+        assertNull(manager.findMatchForKnightAndDiscipline(knight2, discipline));
+        assertNull(manager.findMatchForKnightAndDiscipline(knight2, discipline2));
         assertNull(manager.findMatchForKnightAndDiscipline(knight, discipline));
 
         Match m00 = new Match(null, knight, discipline, 1, null);
@@ -468,19 +448,15 @@ public class MatchManagerImplTest {
     @Test
     public void findByBothNullKnight() {
         Discipline discipline = new Discipline(1l, "TestDiscipline", new Date(0), new Date(1000*60), 10);
-        try {
-            manager.findMatchForKnightAndDiscipline(null, discipline);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchForKnightAndDiscipline(null, discipline);
     }
 
     @Test
     public void findByBothNullDiscipline() {
         Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        try {
-            manager.findMatchForKnightAndDiscipline(knight, null);
-            fail();
-        } catch (IllegalArgumentException e) { /*ok*/ }
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchForKnightAndDiscipline(knight, null);
     }
 
     private static void assertDeepEquals(List<Match> expected, List<Match> actual) {
