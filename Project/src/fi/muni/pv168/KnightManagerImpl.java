@@ -44,6 +44,7 @@ public class KnightManagerImpl implements KnightManager {
         if (knight.getId() != null) {
             throw new IllegalArgumentException("Knight already exists (ID is not null)");
         }
+
         Connection conn = null;
         PreparedStatement st = null;
         try {
@@ -51,7 +52,14 @@ public class KnightManagerImpl implements KnightManager {
             conn.setAutoCommit(false);
 
             st = conn.prepareStatement(
-                    "INSERT INTO "+TABLE+" ("+COL_NAME+","+COL_BORN+","+COL_CASTLE+","+COL_HERALDRY+") VALUES (?,?,?,?)",
+                    "INSERT INTO "+TABLE+
+                        " ("+
+                            COL_NAME+
+                            ","+COL_BORN+
+                            ","+COL_CASTLE+
+                            ","+COL_HERALDRY+
+                        ") " +
+                    "VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             st.setString(1, knight.getName());
             st.setDate(2, knight.getBorn());
@@ -89,7 +97,15 @@ public class KnightManagerImpl implements KnightManager {
 
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
-                    "SELECT "+COL_ID+", "+COL_NAME+", "+COL_BORN+", "+COL_CASTLE+", "+COL_HERALDRY+" FROM "+TABLE+" WHERE "+COL_ID+" = ?");
+                    "SELECT "+
+                        COL_ID+
+                        ", "+COL_NAME+
+                        ", "+COL_BORN+
+                        ", "+COL_CASTLE+
+                        ", "+COL_HERALDRY+
+                    " FROM "+TABLE+
+                    " WHERE "+COL_ID+" = ?"
+            );
             st.setLong(1, id);
 
             ResultSet rs = st.executeQuery();
@@ -97,7 +113,7 @@ public class KnightManagerImpl implements KnightManager {
             if (rs.next()) {
                 Knight result = rowToKnight(rs);
                 if (rs.next()) {
-                    throw new ServiceFailureException("Internal integrity error: more knights with the same id found!");
+                    throw new ServiceFailureException("Internal integrity error: more knights with the same id!");
                 }
                 return result;
             } else {
@@ -120,7 +136,14 @@ public class KnightManagerImpl implements KnightManager {
         try {
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
-                    "SELECT "+COL_ID+", "+COL_NAME+", "+COL_BORN+", "+COL_CASTLE+", "+COL_HERALDRY+" FROM "+TABLE);
+                    "SELECT "+
+                        COL_ID+
+                        ", "+COL_NAME+
+                        ", "+COL_BORN+
+                        ", "+COL_CASTLE+
+                        ", "+COL_HERALDRY+
+                        " FROM "+TABLE
+            );
 
             ResultSet rs = st.executeQuery();
             List<Knight> result = new ArrayList<Knight>();
@@ -155,7 +178,13 @@ public class KnightManagerImpl implements KnightManager {
 
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
-                    "UPDATE "+TABLE+" SET "+COL_NAME+" = ?, "+COL_BORN+" = ?, "+COL_CASTLE+" = ?, "+COL_HERALDRY+" = ? WHERE "+COL_ID+" = ?");
+                    "UPDATE "+TABLE+" SET "+
+                        COL_NAME+" = ?, "+
+                        COL_BORN+" = ?, "+
+                        COL_CASTLE+" = ?, "+
+                        COL_HERALDRY+" = ? " +
+                    "WHERE "+COL_ID+" = ?"
+            );
             st.setString(1, knight.getName());
             st.setDate(2, knight.getBorn());
             st.setString(3, knight.getCastle());
@@ -193,8 +222,7 @@ public class KnightManagerImpl implements KnightManager {
             conn = dataSource.getConnection();
 
             conn.setAutoCommit(false);
-            st = conn.prepareStatement(
-                    "DELETE FROM "+TABLE+" WHERE "+COL_ID+" = ?");
+            st = conn.prepareStatement("DELETE FROM "+TABLE+" WHERE "+COL_ID+" = ?");
             st.setLong(1, knight.getId());
 
             int count = st.executeUpdate();

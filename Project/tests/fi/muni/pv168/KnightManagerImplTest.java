@@ -36,7 +36,7 @@ public class KnightManagerImplTest {
     }
 
     @After
-    public void clenUp() throws SQLException {
+    public void cleanUp() throws SQLException {
         DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("dropTables.sql"));
     }
 
