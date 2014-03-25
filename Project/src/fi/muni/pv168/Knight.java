@@ -1,6 +1,6 @@
 package fi.muni.pv168;
 
-import java.util.Date;
+import java.sql.Date;
 
 /**
  * <p>Entity class representing one Knight fighting in a tourney.</p>

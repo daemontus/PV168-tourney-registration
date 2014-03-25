@@ -1,5 +1,6 @@
 package fi.muni.pv168;
 
+import javax.activation.DataSource;
 import java.util.List;
 
 /**
@@ -7,7 +8,17 @@ import java.util.List;
  */
 public class MatchManagerImpl implements MatchManager{
 
-	@Override
+    private DataSource dataSource;
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    private void checkDataSource() {
+        if (dataSource == null) throw new IllegalStateException("Data source not set");
+    }
+
+    @Override
 	public void createMatch(Match match) {
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.createMatch
 		throw new UnsupportedOperationException();
@@ -54,5 +65,12 @@ public class MatchManagerImpl implements MatchManager{
 		// TODO - implement fi.muni.pv168.MatchManagerImpl.findMatchForKnightAndDiscipline
 		throw new UnsupportedOperationException();
 	}
+
+    private void validate(Match match) {
+        if (match.getPoints() != null && match.getPoints() < 0) throw new IllegalArgumentException("Match points below zero.");
+        if (match.getStartNumber() < 0) throw new IllegalArgumentException("Match starting number below zero.");
+        if (match.getDiscipline() == null) throw new IllegalArgumentException("Match with null discipline.");
+        if (match.getKnight() == null) throw new IllegalArgumentException("Match with null knight.");
+    }
 
 }

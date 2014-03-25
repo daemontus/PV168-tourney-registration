@@ -1,9 +1,17 @@
 package fi.muni.pv168;
 
+import fi.muni.pv168.utils.DBUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sqlite.SQLiteDataSource;
 
-import java.util.*;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -16,10 +24,20 @@ import static org.junit.Assert.*;
 public class KnightManagerImplTest {
 
     private KnightManagerImpl manager;
+    private SQLiteDataSource dataSource;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
+        dataSource = new SQLiteDataSource();
+        dataSource.setUrl("jdbc:sqlite:knightTest.db");
+        DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("createTables.sql"));
         manager = new KnightManagerImpl();
+        manager.setDataSource(dataSource);
+    }
+
+    @After
+    public void clenUp() throws SQLException {
+        DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("dropTables.sql"));
     }
 
     @Test
@@ -54,8 +72,8 @@ public class KnightManagerImplTest {
     @Test
     public void updateKnightName() {
 
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -72,8 +90,8 @@ public class KnightManagerImplTest {
     @Test
     public void updateKnightCastle() {
 
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -89,8 +107,8 @@ public class KnightManagerImplTest {
     @Test
     public void updateKnightBorn() {
 
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -106,8 +124,8 @@ public class KnightManagerImplTest {
     @Test
     public void updateKnightHeraldry() {
 
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -126,9 +144,9 @@ public class KnightManagerImplTest {
     public void deleteKnight() {
 
 
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         manager.createKnight(knight);
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
         manager.createKnight(knight2);
 
         assertNotNull(manager.getKnightById(knight.getId()));

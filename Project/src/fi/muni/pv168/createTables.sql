@@ -1,0 +1,7 @@
+CREATE TABLE "Knights" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" VARCHAR(255) NOT NULL,
+    "born" DATE NOT NULL,
+    "castle" VARCHAR(255) NOT NULL,
+    "heraldry" VARCHAR(255) NOT NULL
+);
