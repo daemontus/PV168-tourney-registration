@@ -6,7 +6,9 @@ import fi.muni.pv168.utils.ServiceFailureException;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,12 +17,14 @@ import java.util.logging.Logger;
  */
 public class KnightManagerImpl implements KnightManager {
 
-    private final static String COL_ID = "id";
-    private final static String COL_NAME = "name";
-    private final static String COL_BORN = "born";
-    private final static String COL_CASTLE = "castle";
-    private final static String COL_HERALDRY = "heraldry";
-    private final static String TABLE = "Knights";
+    private final static String COL_ID = "ID";
+    private final static String COL_NAME = "NAME";
+    private final static String COL_BORN = "BORN";
+    private final static String COL_CASTLE = "CASTLE";
+    private final static String COL_HERALDRY = "HERALDRY";
+    private final static String TABLE = "KNIGHTS";
+
+    private final static Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     private static final Logger logger = Logger.getLogger(
             KnightManagerImpl.class.getName());
@@ -32,7 +36,9 @@ public class KnightManagerImpl implements KnightManager {
     }
 
     private void checkDataSource() {
-        if (dataSource == null) throw new IllegalStateException("No data source set.");
+        if (dataSource == null) {
+            throw new IllegalStateException("No data source set.");
+        }
     }
 
     @Override
@@ -62,7 +68,7 @@ public class KnightManagerImpl implements KnightManager {
                     "VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             st.setString(1, knight.getName());
-            st.setDate(2, knight.getBorn());
+            st.setDate(2, knight.getBorn(), gmtTime);
             st.setString(3, knight.getCastle());
             st.setString(4, knight.getHeraldry());
 
@@ -186,7 +192,7 @@ public class KnightManagerImpl implements KnightManager {
                     "WHERE "+COL_ID+" = ?"
             );
             st.setString(1, knight.getName());
-            st.setDate(2, knight.getBorn());
+            st.setDate(2, knight.getBorn(), gmtTime);
             st.setString(3, knight.getCastle());
             st.setString(4, knight.getHeraldry());
             st.setLong(5, knight.getId());
@@ -250,8 +256,7 @@ public class KnightManagerImpl implements KnightManager {
         result.setCastle(r.getString(COL_CASTLE));
         result.setName(r.getString(COL_NAME));
         result.setHeraldry(r.getString(COL_HERALDRY));
-        result.setBorn(r.getDate(COL_BORN));
-
+        result.setBorn(r.getDate(COL_BORN, gmtTime));
         return result;
     }
 

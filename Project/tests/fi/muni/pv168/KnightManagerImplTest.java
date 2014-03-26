@@ -1,10 +1,12 @@
 package fi.muni.pv168;
 
 import fi.muni.pv168.utils.DBUtils;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sqlite.SQLiteDataSource;
+import org.junit.rules.ExpectedException;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -24,12 +26,17 @@ import static org.junit.Assert.*;
 public class KnightManagerImplTest {
 
     private KnightManagerImpl manager;
-    private SQLiteDataSource dataSource;
+    private BasicDataSource dataSource;
+
+    private static final int MILIS_IN_DAY = 1000*60*60*24;
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() throws SQLException {
-        dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite:knightTest.db");
+        dataSource = new BasicDataSource();
+        dataSource.setUrl("jdbc:derby:memory:knight-manager-test;create=true");
         DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("createTables.sql"));
         manager = new KnightManagerImpl();
         manager.setDataSource(dataSource);
@@ -42,7 +49,6 @@ public class KnightManagerImplTest {
 
     @Test
     public void createKnight() {
-
         Knight knight = new Knight(null, "TestKnightName", "TestCastle", new Date(0), "TestHeraldry"); //not-null name
         manager.createKnight(knight);
         Long id = knight.getId();
@@ -56,11 +62,16 @@ public class KnightManagerImplTest {
     }
 
     @Test
+    public void createKnightNoName() {
+
+    }
+
+    @Test
     public void getAllKnights() {
 
         Knight knight1 = new Knight(null, "TestName", "TestCastle", new Date(0), "TestHeraldry");
         manager.createKnight(knight1);
-        Knight knight2 = new Knight(null, "TestName2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight2 = new Knight(null, "TestName2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
         manager.createKnight(knight2);
 
         List<Knight> expected = Arrays.asList(knight1, knight2);
@@ -73,7 +84,7 @@ public class KnightManagerImplTest {
     public void updateKnightName() {
 
         Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -91,7 +102,7 @@ public class KnightManagerImplTest {
     public void updateKnightCastle() {
 
         Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -108,7 +119,7 @@ public class KnightManagerImplTest {
     public void updateKnightBorn() {
 
         Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();
@@ -125,7 +136,7 @@ public class KnightManagerImplTest {
     public void updateKnightHeraldry() {
 
         Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
+        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
         manager.createKnight(knight);
         manager.createKnight(knight2);
         Long id = knight.getId();

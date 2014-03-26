@@ -11,11 +11,14 @@ import java.sql.Date;
  */
 public class Knight {
 
-	private Long id;
+	private static final int MILIS_IN_DAY = 1000*60*60*24;
+
+    private Long id;
 	private String name;
 	private String castle;
-	private Date born;
+	private java.sql.Date born;
 	private String heraldry;
+
 
 	public Knight() {
 		this(null,null,null,null,null);
@@ -25,7 +28,7 @@ public class Knight {
 	    this.id = id;
         this.name = name;
         this.castle = castle;
-        this.born = born;
+        this.born = born == null ? null : new Date(born.getTime() % MILIS_IN_DAY);
         this.heraldry = heraldry;
 	}
 
@@ -58,7 +61,7 @@ public class Knight {
     }
 
     public void setBorn(Date born) {
-        this.born = born;
+        this.born = new Date(born.getTime() % MILIS_IN_DAY);
     }
 
     public String getHeraldry() {
