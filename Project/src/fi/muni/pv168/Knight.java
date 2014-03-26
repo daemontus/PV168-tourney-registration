@@ -11,7 +11,7 @@ import java.sql.Date;
  */
 public class Knight {
 
-	private static final int MILIS_IN_DAY = 1000*60*60*24;
+	private static final int MILLIS_IN_DAY = 1000*60*60*24;
 
     private Long id;
 	private String name;
@@ -28,7 +28,7 @@ public class Knight {
 	    this.id = id;
         this.name = name;
         this.castle = castle;
-        this.born = born == null ? null : new Date(born.getTime() % MILIS_IN_DAY);
+        setBorn(born);
         this.heraldry = heraldry;
 	}
 
@@ -61,7 +61,8 @@ public class Knight {
     }
 
     public void setBorn(Date born) {
-        this.born = new Date(born.getTime() % MILIS_IN_DAY);
+        //fix for database date implementation inconsistency
+        this.born = born == null ? null : new Date(born.getTime() % MILLIS_IN_DAY);
     }
 
     public String getHeraldry() {

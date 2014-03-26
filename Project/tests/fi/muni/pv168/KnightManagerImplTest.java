@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Describe the class here.
+ * Implementation unit tests of Knight Manager
  *
  * @author David Kizivat
  * @version 0.1
@@ -28,10 +28,17 @@ public class KnightManagerImplTest {
     private KnightManagerImpl manager;
     private BasicDataSource dataSource;
 
-    private static final int MILIS_IN_DAY = 1000*60*60*24;
+    //test instances
+    private Knight testKnightOne;
+    private Knight testKnightTwo;
+
+    private static final int MILLIS_IN_DAY = 1000*60*60*24;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+
+
 
     @Before
     public void setUp() throws SQLException {
@@ -40,6 +47,10 @@ public class KnightManagerImplTest {
         DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("createTables.sql"));
         manager = new KnightManagerImpl();
         manager.setDataSource(dataSource);
+
+        testKnightOne = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        testKnightTwo = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILLIS_IN_DAY), "TestHeraldry2");
+
     }
 
     @After
@@ -47,134 +58,247 @@ public class KnightManagerImplTest {
         DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("dropTables.sql"));
     }
 
+
+
+
     @Test
     public void createKnight() {
-        Knight knight = new Knight(null, "TestKnightName", "TestCastle", new Date(0), "TestHeraldry"); //not-null name
-        manager.createKnight(knight);
-        Long id = knight.getId();
+        manager.createKnight(testKnightOne);
+        Long id = testKnightOne.getId();
 
         assertNotNull(id);
 
-        Knight result = manager.getKnightById(knight.getId());
-        assertEquals(knight, result);
-        assertNotSame(knight, result);
-        assertDeepEquals(knight, result);
+        Knight result = manager.getKnightById(testKnightOne.getId());
+        assertEquals(testKnightOne, result);
+        assertNotSame(testKnightOne, result);
+        assertDeepEquals(testKnightOne, result);
     }
 
     @Test
-    public void createKnightNoName() {
-
+    public void createNullKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.createKnight(null);
     }
+
+    @Test
+    public void createNullNameKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.createKnight(new Knight(null, null, "TestCastle", new Date(0), "Test"));
+    }
+
+    @Test
+    public void createNullCastleKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.createKnight(new Knight(null, "TestName", null, new Date(0), "Test"));
+    }
+
+    @Test
+    public void createNullBornKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.createKnight(new Knight(null, "TestName", "TestCastle", null, "Test"));
+    }
+
+    @Test
+    public void createNullHeraldryKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.createKnight(new Knight(null, "TestName", "TestCastle", new Date(0), null));
+    }
+
+    @Test
+    public void createKnightInvalidDataSource() {
+        manager = new KnightManagerImpl();
+        exception.expect(IllegalStateException.class);
+        manager.createKnight(testKnightOne);
+    }
+
+
+
 
     @Test
     public void getAllKnights() {
-
-        Knight knight1 = new Knight(null, "TestName", "TestCastle", new Date(0), "TestHeraldry");
-        manager.createKnight(knight1);
-        Knight knight2 = new Knight(null, "TestName2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
-        manager.createKnight(knight2);
-
-        List<Knight> expected = Arrays.asList(knight1, knight2);
+        manager.createKnight(testKnightOne);
+        manager.createKnight(testKnightTwo);
+        List<Knight> expected = Arrays.asList(testKnightOne, testKnightTwo);
         List<Knight> actual = manager.findAllKnights();
-
         assertDeepEquals(expected, actual);
     }
 
     @Test
+    public void getAllKnightsInvalidDataSource() {
+        manager = new KnightManagerImpl();
+        exception.expect(IllegalStateException.class);
+        manager.findAllKnights();
+    }
+
+
+
+    @Test
     public void updateKnightName() {
+        manager.createKnight(testKnightOne);
+        manager.createKnight(testKnightTwo);
+        Long id = testKnightOne.getId();
 
-        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
-        manager.createKnight(knight);
-        manager.createKnight(knight2);
-        Long id = knight.getId();
+        testKnightOne.setName(testKnightTwo.getName());   //edit name
+        manager.updateKnight(testKnightOne);
 
-        knight.setName(knight2.getName());   //edit name
-        manager.updateKnight(knight);
-        assertDeepEquals(knight, manager.getKnightById(id));
-
-
-        //are other records affected?
-        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+        assertDeepEquals(testKnightOne, manager.getKnightById(id));
+        assertDeepEquals(testKnightTwo, manager.getKnightById(testKnightTwo.getId()));
     }
 
     @Test
     public void updateKnightCastle() {
+        manager.createKnight(testKnightOne);
+        manager.createKnight(testKnightTwo);
+        Long id = testKnightOne.getId();
 
-        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
-        manager.createKnight(knight);
-        manager.createKnight(knight2);
-        Long id = knight.getId();
+        testKnightOne.setCastle(testKnightTwo.getCastle());   //edit castle
+        manager.updateKnight(testKnightOne);
 
-        knight.setCastle(knight2.getCastle());   //edit castle
-        manager.updateKnight(knight);
-        assertDeepEquals(knight, manager.getKnightById(id));
-
-        //are other records affected?
-        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+        assertDeepEquals(testKnightOne, manager.getKnightById(id));
+        assertDeepEquals(testKnightTwo, manager.getKnightById(testKnightTwo.getId()));
     }
 
     @Test
     public void updateKnightBorn() {
+        manager.createKnight(testKnightOne);
+        manager.createKnight(testKnightTwo);
+        Long id = testKnightOne.getId();
 
-        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
-        manager.createKnight(knight);
-        manager.createKnight(knight2);
-        Long id = knight.getId();
+        testKnightOne.setBorn(testKnightTwo.getBorn());   //edit born
+        manager.updateKnight(testKnightOne);
 
-        knight.setBorn(knight2.getBorn());   //edit born
-        manager.updateKnight(knight);
-        assertDeepEquals(knight, manager.getKnightById(id));
-
-        //are other records affected?
-        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+        assertDeepEquals(testKnightOne, manager.getKnightById(id));
+        assertDeepEquals(testKnightTwo, manager.getKnightById(testKnightTwo.getId()));
     }
 
     @Test
     public void updateKnightHeraldry() {
+        manager.createKnight(testKnightOne);
+        manager.createKnight(testKnightTwo);
+        Long id = testKnightOne.getId();
 
-        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILIS_IN_DAY), "TestHeraldry2");
-        manager.createKnight(knight);
-        manager.createKnight(knight2);
-        Long id = knight.getId();
+        testKnightOne.setHeraldry(testKnightTwo.getHeraldry()); //set not null points
+        manager.updateKnight(testKnightOne);
 
-        knight.setHeraldry(knight2.getHeraldry()); //set not null points
-        manager.updateKnight(knight);
-        assertDeepEquals(knight, manager.getKnightById(id));
-
-        //are other records affected?
-        assertDeepEquals(knight2, manager.getKnightById(knight2.getId()));
+        assertDeepEquals(testKnightOne, manager.getKnightById(id));
+        assertDeepEquals(testKnightTwo, manager.getKnightById(testKnightTwo.getId()));
     }
+
+    @Test
+    public void updateNullKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(null);
+    }
+
+    @Test
+    public void updateNullIdKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
+    @Test
+    public void updateNonExistentKnight() {
+        testKnightOne.setId(3L);
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
+    @Test
+    public void updateNullNameKnight() {
+        manager.createKnight(testKnightOne);
+        testKnightOne.setName(null);
+
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
+    @Test
+    public void updateNullCastleKnight() {
+        manager.createKnight(testKnightOne);
+        testKnightOne.setCastle(null);
+
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
+    @Test
+    public void updateNullBornKnight() {
+        manager.createKnight(testKnightOne);
+        testKnightOne.setBorn(null);
+
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
+    @Test
+    public void updateNullHeraldryKnight() {
+        manager.createKnight(testKnightOne);
+        testKnightOne.setHeraldry(null);
+
+        exception.expect(IllegalArgumentException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
+    @Test
+    public void updateKnightInvalidDataSource() {
+        manager = new KnightManagerImpl();
+        exception.expect(IllegalStateException.class);
+        manager.updateKnight(testKnightOne);
+    }
+
 
 
 
     @Test
     public void deleteKnight() {
+        manager.createKnight(testKnightOne);
+        manager.createKnight(testKnightTwo);
 
+        assertNotNull(manager.getKnightById(testKnightOne.getId()));
+        assertNotNull(manager.getKnightById(testKnightTwo.getId()));
 
-        Knight knight = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        manager.createKnight(knight);
-        Knight knight2 = new Knight(null, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        manager.createKnight(knight2);
+        manager.deleteKnight(testKnightOne);
 
-        assertNotNull(manager.getKnightById(knight.getId()));
-        assertNotNull(manager.getKnightById(knight2.getId()));
-
-        manager.deleteKnight(knight);
-
-        assertNull(manager.getKnightById(knight.getId()));
-        assertNotNull(manager.getKnightById(knight2.getId()));
-
+        assertNull(manager.getKnightById(testKnightOne.getId()));
+        assertNotNull(manager.getKnightById(testKnightTwo.getId()));
     }
+
+    @Test
+    public void deleteNullKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.deleteKnight(null);
+    }
+
+    @Test
+    public void deleteNullIdKnight() {
+        exception.expect(IllegalArgumentException.class);
+        manager.deleteKnight(testKnightOne);
+    }
+
+    @Test
+    public void deleteNonExistentKnight() {
+        testKnightOne.setId(3L);
+        exception.expect(IllegalArgumentException.class);
+        manager.deleteKnight(testKnightOne);
+    }
+
+    @Test
+    public void deleteKnightInvalidDataSource() {
+        manager = new KnightManagerImpl();
+        exception.expect(IllegalStateException.class);
+        manager.deleteKnight(testKnightOne);
+    }
+
+
+
 
     private static void assertDeepEquals(List<Knight> expected, List<Knight> actual) {
         assertEquals(expected.size(), actual.size());
         Collections.sort(expected, idComparator);
         Collections.sort(actual, idComparator);
-        for (int i=0; i<actual.size(); i++) assertDeepEquals(expected.get(i), actual.get(i));
+        for (int i=0; i<actual.size(); i++) {
+            assertDeepEquals(expected.get(i), actual.get(i));
+        }
     }
 
     private static void assertDeepEquals(Knight expected, Knight actual) {
@@ -188,8 +312,12 @@ public class KnightManagerImplTest {
     private static Comparator<Knight> idComparator = new Comparator<Knight>() {
         @Override
         public int compare(Knight knight, Knight knight2) {
-            if (knight.getId() == null || knight2.getId() == null) throw new IllegalArgumentException("Cant compare null ids");
+            if (knight.getId() == null || knight2.getId() == null) {
+                throw new IllegalArgumentException("Can't compare null ids");
+            }
             return knight.getId().compareTo(knight2.getId());
         }
     };
+
+
 }

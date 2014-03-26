@@ -337,7 +337,7 @@ public class MatchManagerImplTest {
     }
 
     @Test
-    public void invalidNullDelete() {
+    public void deleteNullMatch() {
         exception.expect(IllegalArgumentException.class);
         manager.deleteMatch(null);
     }

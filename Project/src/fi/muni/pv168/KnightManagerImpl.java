@@ -26,8 +26,7 @@ public class KnightManagerImpl implements KnightManager {
 
     private final static Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private static final Logger logger = Logger.getLogger(
-            KnightManagerImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(KnightManagerImpl.class.getName());
 
     private DataSource dataSource;
 
@@ -43,8 +42,8 @@ public class KnightManagerImpl implements KnightManager {
 
     @Override
 	public void createKnight(Knight knight) {
-
         checkDataSource();
+
         validate(knight);
 
         if (knight.getId() != null) {
@@ -74,7 +73,9 @@ public class KnightManagerImpl implements KnightManager {
 
             int count = st.executeUpdate();
 
-            if (count != 1) throw new ServiceFailureException("Unexpected number of modified rows during Knight create: "+count);
+            if (count != 1) {
+                throw new ServiceFailureException("Unexpected number of modified rows during Knight create: "+count);
+            }
 
             Long id = DBUtils.getId(st.getGeneratedKeys());
             knight.setId(id);
@@ -156,7 +157,6 @@ public class KnightManagerImpl implements KnightManager {
             while (rs.next()) {
                 result.add(rowToKnight(rs));
             }
-
             return result;
         } catch (SQLException ex) {
             String msg = "Error when getting all graves from DB";
@@ -169,7 +169,9 @@ public class KnightManagerImpl implements KnightManager {
 
 	@Override
 	public void updateKnight(Knight knight) throws ServiceFailureException {
+
         checkDataSource();
+
         validate(knight);
 
         if (knight.getId() == null) {
@@ -199,8 +201,12 @@ public class KnightManagerImpl implements KnightManager {
 
             int count = st.executeUpdate();
 
-            if (count == 0) throw new IllegalArgumentException("Updating non existent knight, id:"+knight.getId());
-            if (count != 1) throw new ServiceFailureException("Integrity error. Updated row count: "+count);
+            if (count == 0) {
+                throw new IllegalArgumentException("Updating non existent knight, id:"+knight.getId());
+            }
+            if (count != 1) {
+                throw new ServiceFailureException("Integrity error. Updated row count: "+count);
+            }
 
             conn.commit();
         } catch (SQLException ex) {
@@ -215,6 +221,7 @@ public class KnightManagerImpl implements KnightManager {
 	@Override
 	public void deleteKnight(Knight knight) throws ServiceFailureException {
         checkDataSource();
+
         if (knight == null) {
             throw new IllegalArgumentException("Knight is null.");
         }
@@ -251,7 +258,6 @@ public class KnightManagerImpl implements KnightManager {
 
     private Knight rowToKnight(ResultSet r) throws SQLException {
         Knight result = new Knight();
-
         result.setId(r.getLong(COL_ID));
         result.setCastle(r.getString(COL_CASTLE));
         result.setName(r.getString(COL_NAME));
@@ -261,10 +267,21 @@ public class KnightManagerImpl implements KnightManager {
     }
 
     private void validate(Knight knight) {
-        if (knight.getName() == null) throw new IllegalArgumentException("Knight with no name.");
-        if (knight.getCastle() == null) throw new IllegalArgumentException("Knight with no castle.");
-        if (knight.getHeraldry() == null) throw new IllegalArgumentException("Knight with no heraldry.");
-        if (knight.getBorn() == null) throw new IllegalArgumentException("Knight with no birth date.");
+        if (knight == null) {
+            throw new IllegalArgumentException("Knight is null.");
+        }
+        if (knight.getName() == null) {
+            throw new IllegalArgumentException("Knight with no name.");
+        }
+        if (knight.getCastle() == null) {
+            throw new IllegalArgumentException("Knight with no castle.");
+        }
+        if (knight.getHeraldry() == null) {
+            throw new IllegalArgumentException("Knight with no heraldry.");
+        }
+        if (knight.getBorn() == null) {
+            throw new IllegalArgumentException("Knight with no birth date.");
+        }
     }
 
 }
