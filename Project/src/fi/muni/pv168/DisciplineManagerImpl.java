@@ -5,8 +5,10 @@ import fi.muni.pv168.utils.ServiceFailureException;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.*;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -165,9 +167,47 @@ public class DisciplineManagerImpl implements DisciplineManager {
 	}
 
     @Override
-	public List<Discipline> getDisciplinesByDay(Date day) {
-		// TODO - implement fi.muni.pv168.DisciplineManagerImpl.getDisciplineByDay
-		throw new UnsupportedOperationException();
+	public List<Discipline> getDisciplinesByDate(Date day) {
+        checkDataSource();
+
+        if (day == null) {
+            throw new IllegalArgumentException("Date cannot be null");
+        }
+        Connection conn = null;
+        PreparedStatement st = null;
+        try {
+            conn = dataSource.getConnection();
+            st = conn.prepareStatement(
+                    "SELECT "+
+                        COL_ID+
+                        ", "+COL_NAME+
+                        ", "+COL_START+
+                        ", "+COL_END+
+                        ", "+COL_MAX_PARTICIPANTS+
+                    " FROM "+TABLE+
+                    " WHERE "+
+                        COL_START+" >= ? AND "+
+                        COL_START+" <= ?"
+            );
+            st.setDate(1, day, gmtTime);
+            Calendar c = Calendar.getInstance();
+            c.setTime(day);
+            c.add(Calendar.DATE, 1);
+            st.setDate(2, new Date(c.getTime().getTime()), gmtTime);
+
+            ResultSet rs = st.executeQuery();
+            List<Discipline> result = new ArrayList<Discipline>();
+            while (rs.next()) {
+                result.add(rowToDiscipline(rs));
+            }
+            return result;
+        } catch (SQLException ex) {
+            String msg = "Error when getting disciplines from DB";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.closeQuietly(conn, st);
+        }
 	}
 
 	@Override

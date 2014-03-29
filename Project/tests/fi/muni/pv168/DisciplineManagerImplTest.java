@@ -8,9 +8,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -312,6 +316,7 @@ public class DisciplineManagerImplTest {
 
         testDisciplineTwo.setStart(new Timestamp(1000*60*60*24*5));
         testDisciplineTwo.setEnd(new Timestamp(1000*60*60*24*5 + 1000*60*60));
+        manager.updateDiscipline(testDisciplineTwo);
 
         expected = Arrays.asList(testDisciplineOne);
         actual = manager.getDisciplinesByDate(new Date(testDisciplineOne.getEnd().getTime()));

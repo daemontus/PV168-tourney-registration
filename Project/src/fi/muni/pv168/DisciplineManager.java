@@ -1,6 +1,6 @@
 package fi.muni.pv168;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -32,7 +32,7 @@ public interface DisciplineManager {
      * @param day Day we want disciplines for.
      * @return All disciplines for specified day.
      */
-	List<Discipline> getDisciplinesByDay(Date day);
+	List<Discipline> getDisciplinesByDate(Date day);
 
     /**
      * Update discipline with new data.
