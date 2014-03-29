@@ -1,7 +1,7 @@
 PV168_tourney
 =============
 
-Project fro Seminar of Java Programming
+Project for Seminar of Java Programming
 
 # Špecifikácia: Evidencia rytierov na turnaji #
 Cieľom tohto softwaru je poskytnúť organizátorom rytierskeho turnaja nástroj na jednoduchú evidenciu účastníkov turnaja, disciplín ktorých sa účastnia a výsledkov ktoré v nich dosiahli. 
