@@ -1,6 +1,6 @@
 package fi.muni.pv168;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * <p>This is an entity class representing one discipline of tourney.
@@ -12,15 +12,15 @@ public class Discipline {
 
 	private Long id;
 	private String name;
-	private Date start;
-	private Date end;
+	private Timestamp start;
+	private Timestamp end;
 	private int maxParticipants;
 
 	public Discipline() {
 		this(null,null,null,null,0);
 	}
 
-	public Discipline(Long id, String name, Date start, Date end, int maxParticipants) {
+	public Discipline(Long id, String name, Timestamp start, Timestamp end, int maxParticipants) {
 		this.id = id;
         this.name = name;
         this.start = start;
@@ -44,19 +44,19 @@ public class Discipline {
         this.name = name;
     }
 
-    public Date getStart() {
+    public Timestamp getStart() {
         return start;
     }
 
-    public void setStart(Date start) {
+    public void setStart(Timestamp start) {
         this.start = start;
     }
 
-    public Date getEnd() {
+    public Timestamp getEnd() {
         return end;
     }
 
-    public void setEnd(Date end) {
+    public void setEnd(Timestamp end) {
         this.end = end;
     }
 

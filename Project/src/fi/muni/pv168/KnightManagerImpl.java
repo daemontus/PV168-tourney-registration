@@ -30,6 +30,10 @@ public class KnightManagerImpl implements KnightManager {
 
     private DataSource dataSource;
 
+    /**
+     * Set data source of this manager
+     * @param dataSource DataSource, can be null.
+     */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }

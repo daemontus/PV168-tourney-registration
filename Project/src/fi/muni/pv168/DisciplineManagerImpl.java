@@ -1,5 +1,6 @@
 package fi.muni.pv168;
 
+import javax.sql.DataSource;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,12 @@ import java.util.List;
  * <p>Implementation of Discipline Manager using JDBC.</p>
  */
 public class DisciplineManagerImpl implements DisciplineManager {
+
+    private DataSource dataSource;
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
 	public void createDiscipline(Discipline discipline) {
