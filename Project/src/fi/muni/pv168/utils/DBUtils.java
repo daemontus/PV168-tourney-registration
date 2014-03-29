@@ -12,7 +12,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by daemontus on 24/03/14.
+ * Utility class augmenting basic database operations
+ *
+ * @author Petr Adamer / Samuel Pastva
  */
 public class DBUtils {
 
@@ -20,6 +22,12 @@ public class DBUtils {
             DBUtils.class.getName());
 
 
+    /**
+     * Closes statements and connection, logs possible errors.
+     *
+     * @param conn database connection
+     * @param statements statements
+     */
     public static void closeQuietly(Connection conn, Statement... statements) {
         for (Statement st : statements) {
             if (st != null) {

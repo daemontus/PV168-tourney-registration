@@ -1,7 +1,10 @@
 package fi.muni.pv168.utils;
 
 /**
- * Created by daemontus on 24/03/14.
+ * Exception expressing some kind of service failure or database inconsistency
+ *
+ * @author Samuel Pastva
+ * @version 29/03/2014
  */
 public class ServiceFailureException extends RuntimeException {
 
