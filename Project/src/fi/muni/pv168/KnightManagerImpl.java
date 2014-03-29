@@ -99,7 +99,7 @@ public class KnightManagerImpl implements KnightManager {
         checkDataSource();
 
         if (id == null) {
-            throw new IllegalArgumentException("Id connot be null");
+            throw new IllegalArgumentException("Id cannot be null");
         }
 
         Connection conn = null;
@@ -153,7 +153,7 @@ public class KnightManagerImpl implements KnightManager {
                         ", "+COL_BORN+
                         ", "+COL_CASTLE+
                         ", "+COL_HERALDRY+
-                        " FROM "+TABLE
+                    " FROM "+TABLE
             );
 
             ResultSet rs = st.executeQuery();
@@ -163,7 +163,7 @@ public class KnightManagerImpl implements KnightManager {
             }
             return result;
         } catch (SQLException ex) {
-            String msg = "Error when getting all graves from DB";
+            String msg = "Error when getting all knights from DB";
             logger.log(Level.SEVERE, msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
