@@ -1,6 +1,6 @@
 package fi.muni.pv168;
 
-import javax.activation.DataSource;
+import javax.sql.DataSource;
 import java.util.List;
 
 /**

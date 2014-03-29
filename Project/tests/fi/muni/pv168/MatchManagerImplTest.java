@@ -1,11 +1,15 @@
 package fi.muni.pv168;
 
+import fi.muni.pv168.utils.DBUtils;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,10 +26,21 @@ import static org.junit.Assert.*;
 public class MatchManagerImplTest {
 
     private MatchManagerImpl manager;
+    private BasicDataSource dataSource;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         manager = new MatchManagerImpl();
+        dataSource = new BasicDataSource();
+        dataSource.setUrl("jdbc:derby:memory:knight-manager-test;create=true");
+        DBUtils.executeSqlScript(dataSource, MatchManager.class.getResource("createTables.sql"));
+        manager = new MatchManagerImpl();
+        manager.setDataSource(dataSource);
+    }
+
+    @After
+    public void cleanUp() throws SQLException {
+        DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("dropTables.sql"));
     }
 
     @Rule
