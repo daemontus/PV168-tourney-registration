@@ -104,6 +104,12 @@ public class DisciplineManagerImplTest {
     }
 
     @Test
+    public void createNegativeDurationDiscipline() {
+        exception.expect(IllegalArgumentException.class);
+        manager.createDiscipline(new Discipline(null, "TestName", new Timestamp(50000), new Timestamp(2000), 123));
+    }
+
+    @Test
     public void createDisciplineInvalidDataSource() {
         manager = new DisciplineManagerImpl();
         exception.expect(IllegalStateException.class);
@@ -230,6 +236,16 @@ public class DisciplineManagerImplTest {
     public void updateNegativeParticipantsDiscipline() {
         manager.createDiscipline(testDisciplineOne);
         testDisciplineOne.setMaxParticipants(-1);
+
+        exception.expect(IllegalArgumentException.class);
+        manager.updateDiscipline(testDisciplineOne);
+    }
+
+    @Test
+    public void updateNegativeDurationDiscipline() {
+        manager.createDiscipline(testDisciplineOne);
+        testDisciplineOne.setStart(new Timestamp(123000));
+        testDisciplineOne.setEnd(new Timestamp(50233));
 
         exception.expect(IllegalArgumentException.class);
         manager.updateDiscipline(testDisciplineOne);
