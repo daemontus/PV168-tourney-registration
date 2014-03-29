@@ -10,10 +10,7 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -299,6 +296,46 @@ public class DisciplineManagerImplTest {
         manager = new DisciplineManagerImpl();
         exception.expect(IllegalStateException.class);
         manager.deleteDiscipline(testDisciplineOne);
+    }
+
+
+
+
+    @Test
+    public void getDisciplinesByDate() {
+        manager.createDiscipline(testDisciplineOne);
+        manager.createDiscipline(testDisciplineTwo);
+
+        List<Discipline> expected = Arrays.asList(testDisciplineOne, testDisciplineTwo);
+        List<Discipline> actual = manager.getDisciplinesByDate(new Date(testDisciplineOne.getEnd().getTime()));
+        assertDeepEquals(expected, actual);
+
+        testDisciplineTwo.setStart(new Timestamp(1000*60*60*24*5));
+        testDisciplineTwo.setEnd(new Timestamp(1000*60*60*24*5 + 1000*60*60));
+
+        expected = Arrays.asList(testDisciplineOne);
+        actual = manager.getDisciplinesByDate(new Date(testDisciplineOne.getEnd().getTime()));
+        assertDeepEquals(expected, actual);
+
+        expected = Arrays.asList(testDisciplineTwo);
+        actual = manager.getDisciplinesByDate(new Date(testDisciplineTwo.getEnd().getTime()));
+        assertDeepEquals(expected, actual);
+
+        actual = manager.getDisciplinesByDate(new Date(1000*60*60*24*10));
+        assertEquals(actual.size(), 0);
+    }
+
+    @Test
+    public void getDisciplinesByNullDate() {
+        exception.expect(IllegalArgumentException.class);
+        manager.getDisciplinesByDate(null);
+    }
+
+    @Test
+    public void getDisciplinesByDateInvalidDataSource() {
+        manager = new DisciplineManagerImpl();
+        exception.expect(IllegalStateException.class);
+        manager.getDisciplinesByDate(new Date(0));
     }
 
 
