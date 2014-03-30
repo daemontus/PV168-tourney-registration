@@ -289,6 +289,8 @@ public class DisciplineManagerImpl implements DisciplineManager {
                 throw new ServiceFailureException("Internal integrity error. Number of affected rows:"+count);
             }
             conn.commit();
+            discipline.setId(null);
+
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, "Error deleting discipline from the db", ex);
             throw new ServiceFailureException("Error deleting discipline from the db", ex);

@@ -253,13 +253,15 @@ public class KnightManagerImplTest {
     public void deleteKnight() {
         manager.createKnight(testKnightOne);
         manager.createKnight(testKnightTwo);
+        Long id = testKnightOne.getId();
 
         assertNotNull(manager.getKnightById(testKnightOne.getId()));
         assertNotNull(manager.getKnightById(testKnightTwo.getId()));
 
         manager.deleteKnight(testKnightOne);
 
-        assertNull(manager.getKnightById(testKnightOne.getId()));
+        assertNull(manager.getKnightById(id));
+        assertNull(testKnightOne.getId());
         assertNotNull(manager.getKnightById(testKnightTwo.getId()));
     }
 

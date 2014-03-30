@@ -266,13 +266,15 @@ public class DisciplineManagerImplTest {
     public void deleteDiscipline() {
         manager.createDiscipline(testDisciplineOne);
         manager.createDiscipline(testDisciplineTwo);
+        Long id = testDisciplineOne.getId();
 
         assertNotNull(manager.getDisciplineById(testDisciplineOne.getId()));
         assertNotNull(manager.getDisciplineById(testDisciplineTwo.getId()));
 
         manager.deleteDiscipline(testDisciplineOne);
 
-        assertNull(manager.getDisciplineById(testDisciplineOne.getId()));
+        assertNull(manager.getDisciplineById(id));
+        assertNull(testDisciplineOne.getId());
         assertNotNull(manager.getDisciplineById(testDisciplineTwo.getId()));
     }
 

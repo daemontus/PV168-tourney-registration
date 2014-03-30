@@ -251,6 +251,8 @@ public class KnightManagerImpl implements KnightManager {
                 throw new ServiceFailureException("Internal integrity error. Number of affected rows:"+count);
             }
             conn.commit();
+            knight.setId(null);
+
         } catch (SQLException ex) {
             logger.log(Level.SEVERE, "Error deleting knight from the db", ex);
             throw new ServiceFailureException("Error deleting knight from the db", ex);

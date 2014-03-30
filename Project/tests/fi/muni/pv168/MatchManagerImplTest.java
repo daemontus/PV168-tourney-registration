@@ -1,6 +1,7 @@
 package fi.muni.pv168;
 
 import fi.muni.pv168.utils.DBUtils;
+import fi.muni.pv168.utils.ServiceFailureException;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -11,10 +12,7 @@ import org.junit.rules.ExpectedException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -25,17 +23,119 @@ import static org.junit.Assert.*;
  */
 public class MatchManagerImplTest {
 
+    private static final int MILLIS_IN_DAY = 1000*60*60*24;
+
+    private KnightManager mockKnightManager = new KnightManager() {
+        private long idPool = 1;
+        private Map<Long, Knight> data = new HashMap<Long, Knight>();
+
+        @Override
+        public void createKnight(Knight knight) throws ServiceFailureException {
+            knight.setId(idPool);
+            idPool++;
+            data.put(knight.getId(), knight);
+        }
+
+        @Override
+        public Knight getKnightById(Long id) throws ServiceFailureException {
+            return data.get(id);
+        }
+
+        @Override
+        public List<Knight> findAllKnights() throws ServiceFailureException {
+            return new ArrayList<Knight>(data.values());
+        }
+
+        @Override
+        public void updateKnight(Knight knight) throws ServiceFailureException {
+            data.put(knight.getId(), knight);
+        }
+
+        @Override
+        public void deleteKnight(Knight knight) throws ServiceFailureException {
+            data.remove(knight.getId());
+        }
+    };
+
+    private DisciplineManager mockDisciplineManager = new DisciplineManager() {
+        private long idPool = 0;
+        private Map<Long, Discipline> data = new HashMap<Long, Discipline>();
+
+        @Override
+        public void createDiscipline(Discipline discipline) {
+            discipline.setId(idPool);
+            idPool++;
+            data.put(discipline.getId(), discipline);
+        }
+
+        @Override
+        public Discipline getDisciplineById(Long id) {
+            return data.get(id);
+        }
+
+        @Override
+        public List<Discipline> findAllDisciplines() {
+            return new ArrayList<Discipline>(data.values());
+        }
+
+        @Override
+        public List<Discipline> getDisciplinesByDate(Date day) {
+            throw new UnsupportedOperationException("This should not be used in this context.");
+        }
+
+        @Override
+        public void updateDiscipline(Discipline discipline) {
+            data.put(discipline.getId(), discipline);
+        }
+
+        @Override
+        public void deleteDiscipline(Discipline discipline) {
+            data.remove(discipline.getId());
+        }
+    };
+
     private MatchManagerImpl manager;
     private BasicDataSource dataSource;
+
+    //test instances
+    private Knight testKnightOne;
+    private Knight testKnightTwo;
+    private Discipline testDisciplineOne;
+    private Discipline testDisciplineTwo;
+    private Match testMatchOne;
+    private Match testMatchTwo;
+
+
+
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() throws SQLException {
         manager = new MatchManagerImpl();
         dataSource = new BasicDataSource();
-        dataSource.setUrl("jdbc:derby:memory:knight-manager-test;create=true");
+        dataSource.setUrl("jdbc:derby:memory:match-manager-test;create=true");
         DBUtils.executeSqlScript(dataSource, MatchManager.class.getResource("createTables.sql"));
         manager = new MatchManagerImpl();
         manager.setDataSource(dataSource);
+        manager.setKnightManager(mockKnightManager);
+        manager.setDisciplineManager(mockDisciplineManager);
+
+        testKnightOne = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        testKnightTwo = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILLIS_IN_DAY), "TestHeraldry2");
+
+        testDisciplineOne = new Discipline(null, "TestDiscipline", new Timestamp(0), new Timestamp(7200*1000), 120);
+        testDisciplineTwo = new Discipline(null, "TestDiscipline2", new Timestamp(1000*60*30), new Timestamp(1000*60*180), 3);
+
+        mockKnightManager.createKnight(testKnightOne);
+        mockKnightManager.createKnight(testKnightTwo);
+
+        mockDisciplineManager.createDiscipline(testDisciplineOne);
+        mockDisciplineManager.createDiscipline(testDisciplineTwo);
+
+        testMatchOne = new Match(null, testKnightOne, testDisciplineOne, 5, 120);
+        testMatchTwo = new Match(null, testKnightTwo, testDisciplineTwo, 4, null);
     }
 
     @After
@@ -43,75 +143,61 @@ public class MatchManagerImplTest {
         DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("dropTables.sql"));
     }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+
+
 
     @Test
     public void createMatch() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Match match = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match);
-        Long id = match.getId();
+        manager.createMatch(testMatchOne);
+        Long id = testMatchOne.getId();
 
         assertNotNull(id);
-        Match result = manager.getMatchById(match.getId());
-        assertEquals(match, result);
-        assertNotSame(match, result);
-        assertDeepEquals(match, result);
+        Match result = manager.getMatchById(testMatchOne.getId());
+        assertEquals(testMatchOne, result);
+        assertNotSame(testMatchOne, result);
+        assertDeepEquals(testMatchOne, result);
     }
 
     @Test
     public void createNullPointsMatch() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Match match = new Match(null, knight, discipline, 5, null);
-        manager.createMatch(match);
-        Long id = match.getId();
+        manager.createMatch(testMatchTwo);
+        Long id = testMatchTwo.getId();
 
         assertNotNull(id);
-        Match result = manager.getMatchById(match.getId());
-        assertEquals(match, result);
-        assertNotSame(match, result);
-        assertDeepEquals(match, result);
+        Match result = manager.getMatchById(testMatchTwo.getId());
+        assertEquals(testMatchTwo, result);
+        assertNotSame(testMatchTwo, result);
+        assertDeepEquals(testMatchTwo, result);
     }
 
     @Test
     public void invalidPointsBelowZeroCreate() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
         exception.expect(IllegalArgumentException.class);
-        manager.createMatch(new Match(null, knight, discipline, 3, -1));
+        manager.createMatch(new Match(null, testKnightOne, testDisciplineOne, 3, -1));
     }
 
     @Test
     public void invalidNumberBelowZeroCreate() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
         exception.expect(IllegalArgumentException.class);
-        manager.createMatch(new Match(null, knight, discipline, -1, 120));
+        manager.createMatch(new Match(null, testKnightOne, testDisciplineOne, -1, 120));
     }
 
     @Test
     public void invalidNullDisciplineCreate() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         exception.expect(IllegalArgumentException.class);
-        manager.createMatch(new Match(null, knight, null, 5, 120));
+        manager.createMatch(new Match(null, testKnightOne, null, 5, 120));
     }
 
     @Test
     public void invalidNullKnightCreate() {
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
         exception.expect(IllegalArgumentException.class);
-        manager.createMatch(new Match(null, null, discipline, 5, 120));
+        manager.createMatch(new Match(null, null, testDisciplineOne, 5, 120));
     }
 
     @Test
     public void invalidIdCreate() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
         exception.expect(IllegalArgumentException.class);
-        manager.createMatch(new Match(1L, knight, discipline, 5, 120));
+        manager.createMatch(new Match(1L, testKnightOne, testDisciplineOne, 5, 120));
     }
 
     @Test
@@ -121,123 +207,135 @@ public class MatchManagerImplTest {
     }
 
     @Test
+    public void invalidNonExistentKnightCreate() {
+        mockKnightManager.deleteKnight(testKnightOne);
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(testMatchOne);
+    }
+
+    @Test
+    public void invalidNonExistentDisciplineCreate() {
+        mockDisciplineManager.deleteDiscipline(testDisciplineOne);
+        exception.expect(IllegalArgumentException.class);
+        manager.createMatch(testMatchOne);
+    }
+
+    @Test
+    public void createMatchInvalidDataSource() {
+        exception.expect(IllegalStateException.class);
+        manager.createMatch(testMatchOne);
+    }
+
+    @Test
+    public void createMatchInvalidDisciplineManager() {
+        manager.setDisciplineManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.createMatch(testMatchOne);
+    }
+
+    @Test
+    public void createMatchInvalidKnightManager() {
+        manager.setKnightManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.createMatch(testMatchTwo);
+    }
+
+
+
+    @Test
     public void getAllMatches() {
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match1 = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match1);
-        Match match2 = new Match(null, knight2, discipline, 4, null);
-        manager.createMatch(match2);
-
-        List<Match> expected = Arrays.asList(match1, match2);
+        List<Match> expected = Arrays.asList(testMatchOne, testMatchTwo);
         List<Match> actual = manager.findAllMatches();
 
         assertDeepEquals(expected, actual);
     }
 
     @Test
+    public void getAllMatchesInvalidDisciplineManager() {
+        manager.setDisciplineManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findAllMatches();
+    }
+
+    @Test
+    public void getAllMatchesInvalidKnightManager() {
+        manager.setKnightManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findAllMatches();
+    }
+
+    @Test
+    public void getAllMatchesInvalidDataSource() {
+        manager.setDataSource(null);
+        exception.expect(IllegalStateException.class);
+        manager.findAllMatches();
+    }
+
+
+
+
+    @Test
     public void updateMatchKnight() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Timestamp(1), new Timestamp(1001*60), 4);
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight, discipline2, 5, null);
-        manager.createMatch(match);
-        manager.createMatch(match2);
-        Long id = match.getId();
-
-        match.setKnight(knight2);   //edit knight
-        manager.updateMatch(match);
-        assertDeepEquals(match, manager.getMatchById(id));
-
+        testMatchOne.setKnight(testKnightTwo);   //edit knight
+        manager.updateMatch(testMatchOne);
+        assertDeepEquals(testMatchOne, manager.getMatchById(testDisciplineOne.getId()));
         //are other records affected?
-        assertDeepEquals(match2, manager.getMatchById(match2.getId()));
+        assertDeepEquals(testMatchTwo, manager.getMatchById(testMatchTwo.getId()));
     }
 
     @Test
     public void updateMatchDiscipline() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Timestamp(1), new Timestamp(1001*60), 4);
+        manager.createMatch(testMatchTwo);
+        manager.createMatch(testMatchOne);
 
-        Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight2, discipline, 5, null);
-        manager.createMatch(match);
-        manager.createMatch(match2);
-        Long id = match.getId();
-
-        match.setDiscipline(discipline2);   //edit discipline
-        manager.updateMatch(match);
-        assertDeepEquals(match, manager.getMatchById(id));
-
+        testMatchOne.setDiscipline(testDisciplineTwo);   //edit discipline
+        manager.updateMatch(testMatchOne);
+        assertDeepEquals(testMatchOne, manager.getMatchById(testMatchOne.getId()));
         //are other records affected?
-        assertDeepEquals(match2, manager.getMatchById(match2.getId()));
+        assertDeepEquals(testMatchTwo, manager.getMatchById(testMatchTwo.getId()));
     }
 
     @Test
     public void updateMatchPointsNull() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight2, discipline, 5, null);
-        manager.createMatch(match);
-        manager.createMatch(match2);
-        Long id = match.getId();
-
-        match.setPoints(null);  //set null points
-        manager.updateMatch(match);
-        assertDeepEquals(match, manager.getMatchById(id));
-
+        testMatchOne.setPoints(null);  //set null points
+        manager.updateMatch(testMatchOne);
+        assertDeepEquals(testMatchOne, manager.getMatchById(testMatchOne.getId()));
         //are other records affected?
-        assertDeepEquals(match2, manager.getMatchById(match2.getId()));
+        assertDeepEquals(testMatchTwo, manager.getMatchById(testMatchTwo.getId()));
     }
 
     @Test
     public void updateMatchPoints() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight2, discipline, 5, null);
-        manager.createMatch(match);
-        manager.createMatch(match2);
-        Long id = match.getId();
-
-        match.setPoints(23); //set not null points
-        manager.updateMatch(match);
-        assertDeepEquals(match, manager.getMatchById(id));
-
+        testMatchOne.setPoints(23); //set not null points
+        manager.updateMatch(testMatchOne);
+        assertDeepEquals(testMatchOne, manager.getMatchById(testMatchOne.getId()));
         //are other records affected?
-        assertDeepEquals(match2, manager.getMatchById(match2.getId()));
+        assertDeepEquals(testMatchTwo, manager.getMatchById(testMatchTwo.getId()));
     }
 
     @Test
     public void updateMatchStartNumber() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Match match = new Match(null, knight, discipline, 5, 120);
-        Match match2 = new Match(null, knight2, discipline, 5, null);
-        manager.createMatch(match);
-        manager.createMatch(match2);
-        Long id = match.getId();
-
-        match.setStartNumber(321);  //set start number
-        manager.updateMatch(match);
-        assertDeepEquals(match, manager.getMatchById(id));
+        testMatchOne.setStartNumber(321);  //set start number
+        manager.updateMatch(testMatchOne);
+        assertDeepEquals(testMatchOne, manager.getMatchById(testMatchOne.getId()));
 
         //are other records affected?
-        assertDeepEquals(match2, manager.getMatchById(match2.getId()));
+        assertDeepEquals(testMatchTwo, manager.getMatchById(testMatchTwo.getId()));
     }
 
     @Test
@@ -248,108 +346,98 @@ public class MatchManagerImplTest {
 
     @Test
     public void invalidUpdateNullId() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match);
-        Long id = match.getId();
-        Match m = manager.getMatchById(id);
-        m.setId(null);
+        manager.createMatch(testMatchOne);
+        testMatchOne.setId(null);
 
         exception.expect(IllegalArgumentException.class);
-        manager.updateMatch(m);
+        manager.updateMatch(testMatchOne);
     }
 
     @Test
     public void invalidUpdateNullKnight() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match);
-        Long id = match.getId();
-        Match m = manager.getMatchById(id);
-        m.setKnight(null);
+        manager.createMatch(testMatchOne);
+        testMatchOne.setKnight(null);
 
         exception.expect(IllegalArgumentException.class);
-        manager.updateMatch(m);
+        manager.updateMatch(testMatchOne);
     }
 
     @Test
     public void invalidUpdateNullDiscipline() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match);
-        Long id = match.getId();
-        Match m = manager.getMatchById(id);
-        m.setDiscipline(null);
+        manager.createMatch(testMatchOne);
+        testMatchOne.setDiscipline(null);
 
         exception.expect(IllegalArgumentException.class);
-        manager.updateMatch(m);
+        manager.updateMatch(testMatchOne);
     }
 
     @Test
     public void invalidUpdateNegativeStartNumber() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match);
-        Long id = match.getId();
-        Match m = manager.getMatchById(id);
-        m.setStartNumber(-1);
+        manager.createMatch(testMatchOne);
+        testMatchOne.setStartNumber(-1);
 
         exception.expect(IllegalArgumentException.class);
-        manager.updateMatch(m);
+        manager.updateMatch(testMatchOne);
     }
 
     @Test
     public void invalidUpdateNegativePoints() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match);
-        Long id = match.getId();
-        Match m = manager.getMatchById(id);
-        m.setPoints(-1);
+        manager.createMatch(testMatchOne);
+        testMatchOne.setPoints(-1);
 
         exception.expect(IllegalArgumentException.class);
-        manager.updateMatch(m);
+        manager.updateMatch(testMatchOne);
     }
 
     @Test
+    public void updateMatchInvalidDisciplineManager() {
+        manager.createMatch(testMatchOne);
+        manager.setDisciplineManager(null);
+        testMatchOne.setDiscipline(testDisciplineTwo);
+        exception.expect(IllegalStateException.class);
+        manager.updateMatch(testMatchOne);
+    }
+
+    @Test
+    public void updateMatchInvalidKnightManager() {
+        manager.createMatch(testMatchOne);
+        manager.setKnightManager(null);
+        testMatchOne.setKnight(testKnightTwo);
+        exception.expect(IllegalStateException.class);
+        manager.updateMatch(testMatchOne);
+    }
+
+    @Test
+    public void updateMatchInvalidDataSource() {
+        manager.setDataSource(null);
+        exception.expect(IllegalStateException.class);
+        manager.createMatch(testMatchOne);
+    }
+
+
+
+
+
+
+    @Test
     public void deleteMatch() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Match match1 = new Match(null, knight, discipline, 5, 120);
-        manager.createMatch(match1);
-        Match match2 = new Match(null, knight, discipline, 4, null);
-        manager.createMatch(match2);
+        assertNotNull(manager.getMatchById(testMatchOne.getId()));
+        assertNotNull(manager.getMatchById(testMatchTwo.getId()));
 
-        assertNotNull(manager.getMatchById(match1.getId()));
-        assertNotNull(manager.getMatchById(match2.getId()));
+        manager.deleteMatch(testMatchOne);
 
-        manager.deleteMatch(match1);
-
-        assertNull(manager.getMatchById(match1.getId()));
-        assertNotNull(manager.getMatchById(match2.getId()));
+        assertNull(manager.getMatchById(testMatchOne.getId()));
+        assertNotNull(manager.getMatchById(testMatchTwo.getId()));
     }
 
     @Test
     public void invalidNonExistentDelete() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-
-        Match match = new Match(null, knight, discipline, 5, 120);
-        assertNull(manager.getMatchById(match.getId()));
-
+        assertNull(manager.getMatchById(testMatchOne.getId()));
         exception.expect(IllegalArgumentException.class);
-        manager.deleteMatch(match);
+        manager.deleteMatch(testMatchOne);
     }
 
     @Test
@@ -358,36 +446,52 @@ public class MatchManagerImplTest {
         manager.deleteMatch(null);
     }
 
+
     @Test
-    public void invalidNullIdDelete() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        exception.expect(IllegalArgumentException.class);
-        manager.deleteMatch(new Match(null, knight, discipline, 5, 120));
+    public void deleteMatchInvalidDisciplineManager() {
+        manager.createMatch(testMatchOne);
+        manager.setDisciplineManager(null);
+        testMatchOne.setDiscipline(testDisciplineTwo);
+        exception.expect(IllegalStateException.class);
+        manager.deleteMatch(testMatchOne);
     }
 
     @Test
-    public void findByKnight() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Timestamp(1), new Timestamp(1001*60), 4);
+    public void deleteMatchInvalidKnightManager() {
+        manager.createMatch(testMatchOne);
+        manager.setKnightManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.updateMatch(testMatchOne);
+    }
 
-        Match m00 = new Match(null, knight, discipline, 1, null);
-        Match m10 = new Match(null, knight2, discipline, 2, null);
-        Match m01 = new Match(null, knight, discipline2, 1, null);
-        Match m11 = new Match(null, knight2, discipline2, 2, null);
+    @Test
+    public void deleteMatchInvalidDataSource() {
+        manager.setDataSource(null);
+        exception.expect(IllegalStateException.class);
+        manager.createMatch(testMatchOne);
+    }
+
+
+
+
+
+    @Test
+    public void findByKnight() {
+        Match m00 = new Match(null, testKnightOne, testDisciplineOne, 1, null);
+        Match m10 = new Match(null, testKnightTwo, testDisciplineOne, 2, null);
+        Match m01 = new Match(null, testKnightOne, testDisciplineTwo, 1, null);
+        Match m11 = new Match(null, testKnightTwo, testDisciplineTwo, 2, null);
         manager.createMatch(m00);
         manager.createMatch(m10);
         manager.createMatch(m01);
         manager.createMatch(m11);
 
         List<Match> expected = Arrays.asList(m00, m01);
-        List<Match> actual = manager.findMatchesForKnight(knight);
+        List<Match> actual = manager.findMatchesForKnight(testKnightOne);
         assertDeepEquals(expected, actual);
 
         expected = Arrays.asList(m10, m11);
-        actual = manager.findMatchesForKnight(knight2);
+        actual = manager.findMatchesForKnight(testKnightTwo);
         assertDeepEquals(expected, actual);
     }
 
@@ -399,33 +503,62 @@ public class MatchManagerImplTest {
     }
 
     @Test
+    public void findByNullIdKnight() {
+        testKnightOne.setId(null);
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchesForKnight(testKnightOne);
+    }
+
+    @Test
     public void findByNullKnight() {
         exception.expect(IllegalArgumentException.class);
         manager.findMatchesForKnight(null);
     }
 
     @Test
-    public void findByDiscipline() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Timestamp(1), new Timestamp(1001*60), 4);
+    public void findByKnightInvalidDisciplineManager() {
+        manager.createMatch(testMatchOne);
+        manager.setDisciplineManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchesForKnight(testKnightOne);
+    }
 
-        Match m00 = new Match(null, knight, discipline, 1, null);
-        Match m10 = new Match(null, knight2, discipline, 2, null);
-        Match m01 = new Match(null, knight, discipline2, 1, null);
-        Match m11 = new Match(null, knight2, discipline2, 2, null);
+    @Test
+    public void findByKnightInvalidKnightManager() {
+        manager.createMatch(testMatchOne);
+        manager.setKnightManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchesForKnight(testKnightOne);
+    }
+
+    @Test
+    public void findByKnightInvalidDataSource() {
+        manager.createMatch(testMatchOne);
+        manager.setDataSource(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchesForKnight(testKnightOne);
+    }
+
+
+
+
+    @Test
+    public void findByDiscipline() {
+        Match m00 = new Match(null, testKnightOne, testDisciplineOne, 1, null);
+        Match m10 = new Match(null, testKnightTwo, testDisciplineOne, 2, null);
+        Match m01 = new Match(null, testKnightOne, testDisciplineTwo, 1, null);
+        Match m11 = new Match(null, testKnightTwo, testDisciplineTwo, 2, null);
         manager.createMatch(m00);
         manager.createMatch(m10);
         manager.createMatch(m01);
         manager.createMatch(m11);
 
         List<Match> expected = Arrays.asList(m00, m10);
-        List<Match> actual = manager.findMatchesForDiscipline(discipline);
+        List<Match> actual = manager.findMatchesForDiscipline(testDisciplineOne);
         assertDeepEquals(expected, actual);
 
         expected = Arrays.asList(m01, m11);
-        actual = manager.findMatchesForDiscipline(discipline2);
+        actual = manager.findMatchesForDiscipline(testDisciplineTwo);
         assertDeepEquals(expected, actual);
     }
 
@@ -443,41 +576,127 @@ public class MatchManagerImplTest {
     }
 
     @Test
+    public void findByNullIdDiscipline() {
+        testDisciplineOne.setId(null);
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchesForDiscipline(testDisciplineOne);
+    }
+
+    @Test
+    public void findByDisciplineInvalidDisciplineManager() {
+        manager.createMatch(testMatchOne);
+        manager.setDisciplineManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchesForDiscipline(testDisciplineOne);
+    }
+
+    @Test
+    public void findByDisciplineInvalidKnightManager() {
+        manager.createMatch(testMatchOne);
+        manager.setKnightManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchesForDiscipline(testDisciplineOne);
+    }
+
+    @Test
+    public void findByDisciplineInvalidDataSource() {
+        manager.createMatch(testMatchOne);
+        manager.setDataSource(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchesForDiscipline(testDisciplineOne);
+    }
+
+
+
+
+
+
+    @Test
     public void findByBoth() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        Knight knight2 = new Knight(2l, "TestKnight2", "TestCastle2", new Date(1), "TestHeraldry2");
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
-        Discipline discipline2 = new Discipline(2l, "TestDiscipline2", new Timestamp(1), new Timestamp(1001*60), 4);
+        assertNull(manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineTwo));
+        assertNull(manager.findMatchForKnightAndDiscipline(testKnightTwo, testDisciplineOne));
+        assertNull(manager.findMatchForKnightAndDiscipline(testKnightTwo, testDisciplineTwo));
+        assertNull(manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne));
 
-        assertNull(manager.findMatchForKnightAndDiscipline(knight, discipline2));
-        assertNull(manager.findMatchForKnightAndDiscipline(knight2, discipline));
-        assertNull(manager.findMatchForKnightAndDiscipline(knight2, discipline2));
-        assertNull(manager.findMatchForKnightAndDiscipline(knight, discipline));
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
 
-        Match m00 = new Match(null, knight, discipline, 1, null);
-        Match m11 = new Match(null, knight2, discipline2, 2, null);
-        manager.createMatch(m00);
-        manager.createMatch(m11);
-
-        assertNull(manager.findMatchForKnightAndDiscipline(knight, discipline2));
-        assertNull(manager.findMatchForKnightAndDiscipline(knight2, discipline));
-        assertNotNull(manager.findMatchForKnightAndDiscipline(knight2, discipline2));
-        assertNotNull(manager.findMatchForKnightAndDiscipline(knight, discipline));
+        assertNull(manager.findMatchForKnightAndDiscipline(testMatchTwo.getKnight(), testMatchOne.getDiscipline()));
+        assertNull(manager.findMatchForKnightAndDiscipline(testMatchOne.getKnight(), testMatchTwo.getDiscipline()));
+        assertDeepEquals(testMatchOne, manager.findMatchForKnightAndDiscipline(testMatchOne.getKnight(), testMatchOne.getDiscipline()));
+        assertDeepEquals(testMatchTwo, manager.findMatchForKnightAndDiscipline(testMatchTwo.getKnight(), testMatchTwo.getDiscipline()));
     }
 
     @Test
     public void findByBothNullKnight() {
-        Discipline discipline = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(1000*60), 10);
         exception.expect(IllegalArgumentException.class);
-        manager.findMatchForKnightAndDiscipline(null, discipline);
+        manager.findMatchForKnightAndDiscipline(null, testDisciplineOne);
     }
 
     @Test
     public void findByBothNullDiscipline() {
-        Knight knight = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
         exception.expect(IllegalArgumentException.class);
-        manager.findMatchForKnightAndDiscipline(knight, null);
+        manager.findMatchForKnightAndDiscipline(testKnightOne, null);
     }
+
+    @Test
+    public void findByBothNullIdKnight() {
+        testKnightOne.setId(null);
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne);
+    }
+
+    @Test
+    public void findByBothNullIdDiscipline() {
+        testDisciplineOne.setId(null);
+        exception.expect(IllegalArgumentException.class);
+        manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne);
+    }
+
+    @Test
+    public void findByBothNonExistentKnight() {
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
+        testKnightOne.setId(12L);
+        assertNull(mockKnightManager.getKnightById(12L));
+        assertNull(manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne));
+    }
+
+    @Test
+    public void findByBothNonExistentDiscipline() {
+        manager.createMatch(testMatchOne);
+        manager.createMatch(testMatchTwo);
+        testDisciplineOne.setId(12L);
+        assertNull(mockDisciplineManager.getDisciplineById(12L));
+        assertNull(manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne));
+    }
+
+
+    @Test
+    public void findByBothInvalidDisciplineManager() {
+        manager.createMatch(testMatchOne);
+        manager.setDisciplineManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne);
+    }
+
+    @Test
+    public void findByBothInvalidKnightManager() {
+        manager.createMatch(testMatchOne);
+        manager.setKnightManager(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne);
+    }
+
+    @Test
+    public void findByBothInvalidDataSource() {
+        manager.createMatch(testMatchOne);
+        manager.setDataSource(null);
+        exception.expect(IllegalStateException.class);
+        manager.findMatchForKnightAndDiscipline(testKnightOne, testDisciplineOne);
+    }
+
+
 
     private static void assertDeepEquals(List<Match> expected, List<Match> actual) {
         assertEquals(expected.size(), actual.size());
@@ -496,9 +715,9 @@ public class MatchManagerImplTest {
 
     private static Comparator<Match> idComparator = new Comparator<Match>() {
         @Override
-        public int compare(Match match, Match match2) {
-            if (match.getId() == null || match2.getId() == null) throw new IllegalArgumentException("Cant compare null ids");
-            return match.getId().compareTo(match2.getId());
+        public int compare(Match match, Match testMatchTwo) {
+            if (match.getId() == null || testMatchTwo.getId() == null) throw new IllegalArgumentException("Cant compare null ids");
+            return match.getId().compareTo(testMatchTwo.getId());
         }
     };
 }

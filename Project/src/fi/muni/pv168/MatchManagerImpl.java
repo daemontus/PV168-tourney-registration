@@ -9,13 +9,31 @@ import java.util.List;
 public class MatchManagerImpl implements MatchManager{
 
     private DataSource dataSource;
+    private KnightManager knightManager;
+    private DisciplineManager disciplineManager;
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    private void checkDataSource() {
-        if (dataSource == null) throw new IllegalStateException("Data source not set");
+    private void checkEnvironment() {
+        if (dataSource == null) {
+            throw new IllegalStateException("Data source not set");
+        }
+        if (knightManager == null) {
+            throw new IllegalStateException("Knight manager not set");
+        }
+        if (disciplineManager == null) {
+            throw new IllegalStateException("Discipline manager not set");
+        }
+    }
+
+    public void setKnightManager(KnightManager knightManager) {
+        this.knightManager = knightManager;
+    }
+
+    public void setDisciplineManager(DisciplineManager disciplineManager) {
+        this.disciplineManager = disciplineManager;
     }
 
     @Override
