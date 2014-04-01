@@ -223,13 +223,14 @@ public class MatchManagerImplTest {
 
     @Test
     public void invalidNonExistentDisciplineCreate() {
-        mockDisciplineManager.deleteDiscipline(testDisciplineOne);
+        testMatchOne.setDiscipline(new Discipline(null, "mock", new Timestamp(0), new Timestamp(0), 0));
         exception.expect(IllegalArgumentException.class);
         manager.createMatch(testMatchOne);
     }
 
     @Test
     public void createMatchInvalidDataSource() {
+        manager.setDataSource(null);
         exception.expect(IllegalStateException.class);
         manager.createMatch(testMatchOne);
     }
@@ -446,7 +447,7 @@ public class MatchManagerImplTest {
 
     @Test
     public void invalidNonExistentDelete() {
-        assertNull(manager.getMatchById(testMatchOne.getId()));
+        assertNull(testMatchOne.getId());
         exception.expect(IllegalArgumentException.class);
         manager.deleteMatch(testMatchOne);
     }

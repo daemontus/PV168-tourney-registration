@@ -136,7 +136,12 @@ public class MatchManagerImpl implements MatchManager{
             st.setLong(1, match.getKnight().getId());
             st.setLong(2, match.getDiscipline().getId());
             st.setInt(3, match.getStartNumber());
-            st.setInt(4, match.getPoints());
+            if (match.getPoints() !=null) {
+                st.setInt(4, match.getPoints());
+            } else {
+                st.setNull(4, JSQLType.INT);
+            }
+            st.setLong(5, match.getId());
 
             int count = st.executeUpdate();
 
@@ -199,15 +204,6 @@ public class MatchManagerImpl implements MatchManager{
         }
 	}
 
-    private Match rowToMatch(ResultSet r) throws SQLException {
-        Match result = new Match();
-        result.setId(r.getLong(COL_ID));
-        result.setKnight(knightManager.getKnightById(r.getLong(COL_KNIGHT)));
-        result.setDiscipline(disciplineManager.getDisciplineById(r.getLong(COL_STARTING_NUMBER)));
-        result.setStartNumber(r.getInt(COL_STARTING_NUMBER));
-        result.setPoints(r.getInt(COL_POINTS));
-        return result;
-    }
 
     @Override
 	public List<Match> findAllMatches() {
@@ -428,6 +424,17 @@ public class MatchManagerImpl implements MatchManager{
         }
     }
 
+
+    private Match rowToMatch(ResultSet r) throws SQLException {
+        Match result = new Match();
+        result.setId(r.getLong(COL_ID));
+        result.setKnight(knightManager.getKnightById(r.getLong(COL_KNIGHT)));
+        result.setDiscipline(disciplineManager.getDisciplineById(r.getLong(COL_DISCIPLINE)));
+        result.setStartNumber(r.getInt(COL_STARTING_NUMBER));
+        result.setPoints(r.getObject(COL_POINTS) != null ? r.getInt(COL_POINTS) : null);
+        return result;
+    }
+
     private void validate(Match match) {
         if (match == null) {
             throw new IllegalArgumentException("Match cannt be null");
@@ -441,14 +448,14 @@ public class MatchManagerImpl implements MatchManager{
         if (match.getDiscipline() == null) {
             throw new IllegalArgumentException("Match with null discipline.");
         }
+        if (match.getDiscipline().getId() == null) {
+            throw new IllegalArgumentException("Match with Discipline without id. Insert discipline into db first.");
+        }
         if (match.getKnight() == null) {
             throw new IllegalArgumentException("Match with null knight.");
         }
         if (match.getKnight().getId() == null) {
             throw new IllegalArgumentException("Match with Knight without id. Insert knight into db first.");
-        }
-        if (match.getDiscipline().getId() == null) {
-            throw new IllegalArgumentException("Match with Discipline without id. Insert discipline into db first.");
         }
     }
 }
