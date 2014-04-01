@@ -72,7 +72,7 @@ public class Discipline {
     public String toString() {
         return "Discipline{" +
                 "id=" + id +
-                ", nameß='" + name + '\'' +
+                ", name='" + name + '\'' +
                 ", start=" + start +
                 ", end=" + end +
                 ", maxParticipants=" + maxParticipants +
