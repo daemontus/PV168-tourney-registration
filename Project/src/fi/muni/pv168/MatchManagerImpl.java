@@ -2,6 +2,7 @@ package fi.muni.pv168;
 
 import fi.muni.pv168.utils.DBUtils;
 import fi.muni.pv168.utils.ServiceFailureException;
+import org.apache.derby.iapi.types.JSQLType;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -81,7 +82,12 @@ public class MatchManagerImpl implements MatchManager{
             st.setLong(1, match.getKnight().getId());
             st.setLong(2, match.getDiscipline().getId());
             st.setInt(3, match.getStartNumber());
-            st.setInt(4, match.getPoints());
+            if (match.getPoints() != null) {
+                st.setInt(4, match.getPoints());
+            } else {
+                st.setNull(4, JSQLType.INT);
+            }
+
 
             int count = st.executeUpdate();
 
@@ -195,11 +201,9 @@ public class MatchManagerImpl implements MatchManager{
 
     private Match rowToMatch(ResultSet r) throws SQLException {
         Match result = new Match();
-        KnightManager k = new KnightManagerImpl();
-        DisciplineManager d = new DisciplineManagerImpl();
         result.setId(r.getLong(COL_ID));
-        result.setKnight(k.getKnightById(r.getLong(COL_KNIGHT)));
-        result.setDiscipline(d.getDisciplineById(r.getLong(COL_STARTING_NUMBER)));
+        result.setKnight(knightManager.getKnightById(r.getLong(COL_KNIGHT)));
+        result.setDiscipline(disciplineManager.getDisciplineById(r.getLong(COL_STARTING_NUMBER)));
         result.setStartNumber(r.getInt(COL_STARTING_NUMBER));
         result.setPoints(r.getInt(COL_POINTS));
         return result;
@@ -425,9 +429,26 @@ public class MatchManagerImpl implements MatchManager{
     }
 
     private void validate(Match match) {
-        if (match.getPoints() != null && match.getPoints() < 0) throw new IllegalArgumentException("Match points below zero.");
-        if (match.getStartNumber() < 0) throw new IllegalArgumentException("Match starting number below zero.");
-        if (match.getDiscipline() == null) throw new IllegalArgumentException("Match with null discipline.");
-        if (match.getKnight() == null) throw new IllegalArgumentException("Match with null knight.");
+        if (match == null) {
+            throw new IllegalArgumentException("Match cannt be null");
+        }
+        if (match.getPoints() != null && match.getPoints() < 0) {
+            throw new IllegalArgumentException("Match points below zero.");
+        }
+        if (match.getStartNumber() < 0) {
+            throw new IllegalArgumentException("Match starting number below zero.");
+        }
+        if (match.getDiscipline() == null) {
+            throw new IllegalArgumentException("Match with null discipline.");
+        }
+        if (match.getKnight() == null) {
+            throw new IllegalArgumentException("Match with null knight.");
+        }
+        if (match.getKnight().getId() == null) {
+            throw new IllegalArgumentException("Match with Knight without id. Insert knight into db first.");
+        }
+        if (match.getDiscipline().getId() == null) {
+            throw new IllegalArgumentException("Match with Discipline without id. Insert discipline into db first.");
+        }
     }
 }

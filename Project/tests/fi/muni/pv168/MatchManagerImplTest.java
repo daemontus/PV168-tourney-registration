@@ -23,16 +23,11 @@ import static org.junit.Assert.*;
  */
 public class MatchManagerImplTest {
 
-    private static final int MILLIS_IN_DAY = 1000*60*60*24;
-
     private KnightManager mockKnightManager = new KnightManager() {
-        private long idPool = 1;
         private Map<Long, Knight> data = new HashMap<Long, Knight>();
 
         @Override
         public void createKnight(Knight knight) throws ServiceFailureException {
-            knight.setId(idPool);
-            idPool++;
             data.put(knight.getId(), knight);
         }
 
@@ -58,13 +53,10 @@ public class MatchManagerImplTest {
     };
 
     private DisciplineManager mockDisciplineManager = new DisciplineManager() {
-        private long idPool = 0;
         private Map<Long, Discipline> data = new HashMap<Long, Discipline>();
 
         @Override
         public void createDiscipline(Discipline discipline) {
-            discipline.setId(idPool);
-            idPool++;
             data.put(discipline.getId(), discipline);
         }
 
@@ -117,16 +109,17 @@ public class MatchManagerImplTest {
         dataSource = new BasicDataSource();
         dataSource.setUrl("jdbc:derby:memory:match-manager-test;create=true");
         DBUtils.executeSqlScript(dataSource, MatchManager.class.getResource("createTables.sql"));
+        DBUtils.executeSqlScript(dataSource, MatchManagerImplTest.class.getResource("matchTestMockData.sql"));
         manager = new MatchManagerImpl();
         manager.setDataSource(dataSource);
         manager.setKnightManager(mockKnightManager);
         manager.setDisciplineManager(mockDisciplineManager);
 
-        testKnightOne = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
-        testKnightTwo = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILLIS_IN_DAY), "TestHeraldry2");
+        testKnightOne = new Knight(1l, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        testKnightTwo = new Knight(2l, "TestKnight2", "TestCastle2", new Date(0), "TestHeraldry2");
 
-        testDisciplineOne = new Discipline(null, "TestDiscipline", new Timestamp(0), new Timestamp(7200*1000), 120);
-        testDisciplineTwo = new Discipline(null, "TestDiscipline2", new Timestamp(1000*60*30), new Timestamp(1000*60*180), 3);
+        testDisciplineOne = new Discipline(1l, "TestDiscipline", new Timestamp(0), new Timestamp(7200*1000), 120);
+        testDisciplineTwo = new Discipline(2l, "TestDiscipline2", new Timestamp(1000*60*30), new Timestamp(1000*60*180), 3);
 
         mockKnightManager.createKnight(testKnightOne);
         mockKnightManager.createKnight(testKnightTwo);
@@ -136,6 +129,21 @@ public class MatchManagerImplTest {
 
         testMatchOne = new Match(null, testKnightOne, testDisciplineOne, 5, 120);
         testMatchTwo = new Match(null, testKnightTwo, testDisciplineTwo, 4, null);
+
+       /* System.out.println("Read IDs");
+        Connection connection = dataSource.getConnection();
+        PreparedStatement getKnightIdByName = connection.prepareStatement("SELECT * FROM KNIGHTS");
+        System.out.println("Statement");
+        ResultSet result = getKnightIdByName.executeQuery();
+        System.out.println("Result"+result.getLong("ID"));
+        //getKnightIdByName.setString(1, testKnightOne.getName());
+        /*testKnightOne.setId(getKnightIdByName.executeQuery().getLong("ID"));
+        System.out.println("First");
+        getKnightIdByName.setString(1, testKnightTwo.getName());
+        testKnightTwo.setId(getKnightIdByName.executeQuery().getLong("ID"));
+        System.out.println("Second");
+        getKnightIdByName.close();
+        connection.close();*/
     }
 
     @After
@@ -208,7 +216,7 @@ public class MatchManagerImplTest {
 
     @Test
     public void invalidNonExistentKnightCreate() {
-        mockKnightManager.deleteKnight(testKnightOne);
+        testMatchOne.setKnight(new Knight(null, "mock", "mock", new Date(0), "mock"));
         exception.expect(IllegalArgumentException.class);
         manager.createMatch(testMatchOne);
     }
@@ -423,13 +431,16 @@ public class MatchManagerImplTest {
     public void deleteMatch() {
         manager.createMatch(testMatchOne);
         manager.createMatch(testMatchTwo);
+        Long id = testMatchOne.getId();
 
         assertNotNull(manager.getMatchById(testMatchOne.getId()));
         assertNotNull(manager.getMatchById(testMatchTwo.getId()));
+        assertNotNull(id);
 
         manager.deleteMatch(testMatchOne);
 
-        assertNull(manager.getMatchById(testMatchOne.getId()));
+        assertNull(testMatchOne.getId());
+        assertNull(manager.getMatchById(id));
         assertNotNull(manager.getMatchById(testMatchTwo.getId()));
     }
 
