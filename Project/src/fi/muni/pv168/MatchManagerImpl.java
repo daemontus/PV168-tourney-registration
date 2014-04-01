@@ -29,10 +29,6 @@ public class MatchManagerImpl implements MatchManager{
     private KnightManager knightManager;
     private DisciplineManager disciplineManager;
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
     private void checkEnvironment() {
         if (dataSource == null) {
             throw new IllegalStateException("Data source not set");
@@ -43,6 +39,10 @@ public class MatchManagerImpl implements MatchManager{
         if (disciplineManager == null) {
             throw new IllegalStateException("Discipline manager not set");
         }
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void setKnightManager(KnightManager knightManager) {
@@ -71,14 +71,15 @@ public class MatchManagerImpl implements MatchManager{
 
             st = conn.prepareStatement(
                     "INSERT INTO "+TABLE+
-                            " ("+
+                        " ("+
                             COL_KNIGHT+
                             ","+COL_DISCIPLINE+
                             ","+ COL_STARTING_NUMBER +
                             ","+COL_POINTS+
-                            ") " +
-                            "VALUES (?,?,?,?)",
+                        ") " +
+                    "VALUES (?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
+
             st.setLong(1, match.getKnight().getId());
             st.setLong(2, match.getDiscipline().getId());
             st.setInt(3, match.getStartNumber());
@@ -87,7 +88,6 @@ public class MatchManagerImpl implements MatchManager{
             } else {
                 st.setNull(4, JSQLType.INT);
             }
-
 
             int count = st.executeUpdate();
 
@@ -127,11 +127,11 @@ public class MatchManagerImpl implements MatchManager{
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
                     "UPDATE "+TABLE+" SET "+
-                            COL_KNIGHT+" = ?, "+
-                            COL_DISCIPLINE+" = ?, "+
-                            COL_STARTING_NUMBER +" = ?, "+
-                            COL_POINTS+" = ? " +
-                            "WHERE "+COL_ID+" = ?"
+                        COL_KNIGHT+" = ?, "+
+                        COL_DISCIPLINE+" = ?, "+
+                        COL_STARTING_NUMBER +" = ?, "+
+                        COL_POINTS+" = ? " +
+                    "WHERE "+COL_ID+" = ?"
             );
             st.setLong(1, match.getKnight().getId());
             st.setLong(2, match.getDiscipline().getId());
@@ -168,9 +168,6 @@ public class MatchManagerImpl implements MatchManager{
 
         validate(match);
 
-        if (match == null) {
-            throw new IllegalArgumentException("Discipline is null.");
-        }
         if (match.getId() == null) {
             throw new IllegalArgumentException("Match is not created. (ID is null)");
         }
@@ -214,12 +211,12 @@ public class MatchManagerImpl implements MatchManager{
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
                     "SELECT "+
-                            COL_ID+
-                            ", "+COL_KNIGHT+
-                            ", "+COL_DISCIPLINE+
-                            ", "+ COL_STARTING_NUMBER +
-                            ", "+COL_POINTS+
-                            " FROM "+TABLE
+                        COL_ID+
+                        ", "+COL_KNIGHT+
+                        ", "+COL_DISCIPLINE+
+                        ", "+ COL_STARTING_NUMBER +
+                        ", "+COL_POINTS+
+                    " FROM "+TABLE
             );
 
             ResultSet rs = st.executeQuery();
@@ -253,13 +250,13 @@ public class MatchManagerImpl implements MatchManager{
 
             st = conn.prepareStatement(
                     "SELECT "+
-                            COL_ID+
-                            ", "+COL_KNIGHT+
-                            ", "+COL_DISCIPLINE+
-                            ", "+ COL_STARTING_NUMBER +
-                            ", "+COL_POINTS+
-                            " FROM "+TABLE+
-                            " WHERE "+COL_ID+" = ?"
+                        COL_ID+
+                        ", "+COL_KNIGHT+
+                        ", "+COL_DISCIPLINE+
+                        ", "+ COL_STARTING_NUMBER +
+                        ", "+COL_POINTS+
+                        " FROM "+TABLE+
+                    " WHERE "+COL_ID+" = ?"
             );
             st.setLong(1, id);
 
@@ -300,14 +297,14 @@ public class MatchManagerImpl implements MatchManager{
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
                     "SELECT "+
-                            COL_ID+
-                            ", "+COL_KNIGHT+
-                            ", "+COL_DISCIPLINE+
-                            ", "+ COL_STARTING_NUMBER +
-                            ", "+COL_POINTS+
-                            " FROM "+TABLE+
-                            " WHERE " +
-                                 COL_KNIGHT+" = ?"
+                        COL_ID+
+                        ", "+COL_KNIGHT+
+                        ", "+COL_DISCIPLINE+
+                        ", "+ COL_STARTING_NUMBER +
+                        ", "+COL_POINTS+
+                        " FROM "+TABLE+
+                        " WHERE " +
+                    COL_KNIGHT+" = ?"
             );
             st.setLong(1, knight.getId());
 
@@ -342,14 +339,14 @@ public class MatchManagerImpl implements MatchManager{
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
                     "SELECT "+
-                            COL_ID+
-                            ", "+COL_KNIGHT+
-                            ", "+COL_DISCIPLINE+
-                            ", "+ COL_STARTING_NUMBER +
-                            ", "+COL_POINTS+
-                            " FROM "+TABLE+
-                            " WHERE " +
-                            COL_DISCIPLINE+" = ?"
+                        COL_ID+
+                        ", "+COL_KNIGHT+
+                        ", "+COL_DISCIPLINE+
+                        ", "+ COL_STARTING_NUMBER +
+                        ", "+COL_POINTS+
+                        " FROM "+TABLE+
+                    " WHERE " +
+                    COL_DISCIPLINE+" = ?"
             );
             st.setLong(1, discipline.getId());
 
@@ -391,15 +388,15 @@ public class MatchManagerImpl implements MatchManager{
             conn = dataSource.getConnection();
             st = conn.prepareStatement(
                     "SELECT " +
-                            COL_ID +
-                            ", " + COL_KNIGHT +
-                            ", " + COL_DISCIPLINE +
-                            ", " + COL_STARTING_NUMBER +
-                            ", " + COL_POINTS +
-                            " FROM " + TABLE +
-                            " WHERE " +
-                                   COL_DISCIPLINE + " = ? AND " +
-                                   COL_KNIGHT + "= ?"
+                        COL_ID +
+                        ", " + COL_KNIGHT +
+                        ", " + COL_DISCIPLINE +
+                        ", " + COL_STARTING_NUMBER +
+                        ", " + COL_POINTS +
+                    " FROM " + TABLE +
+                    " WHERE " +
+                        COL_DISCIPLINE + " = ? AND " +
+                        COL_KNIGHT + "= ?"
             );
             st.setLong(1, discipline.getId());
             st.setLong(2, knight.getId());
@@ -437,7 +434,7 @@ public class MatchManagerImpl implements MatchManager{
 
     private void validate(Match match) {
         if (match == null) {
-            throw new IllegalArgumentException("Match cannt be null");
+            throw new IllegalArgumentException("Match cannot be null");
         }
         if (match.getPoints() != null && match.getPoints() < 0) {
             throw new IllegalArgumentException("Match points below zero.");
