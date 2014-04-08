@@ -144,7 +144,7 @@ public class DisciplineManagerImplTest {
         manager.createDiscipline(testDisciplineOne);
         manager.createDiscipline(testDisciplineTwo);
 
-        testDisciplineOne.setName(testDisciplineTwo.getName());   //edit name
+        testDisciplineOne.setName(testDisciplineTwo.getName());
         manager.updateDiscipline(testDisciplineOne);
 
         assertDeepEquals(testDisciplineOne, manager.getDisciplineById(testDisciplineOne.getId()));
@@ -156,7 +156,7 @@ public class DisciplineManagerImplTest {
         manager.createDiscipline(testDisciplineOne);
         manager.createDiscipline(testDisciplineTwo);
 
-        testDisciplineOne.setStart(testDisciplineTwo.getStart());   //edit castle
+        testDisciplineOne.setStart(testDisciplineTwo.getStart());
         manager.updateDiscipline(testDisciplineOne);
 
         assertDeepEquals(testDisciplineOne, manager.getDisciplineById(testDisciplineOne.getId()));
@@ -168,7 +168,7 @@ public class DisciplineManagerImplTest {
         manager.createDiscipline(testDisciplineOne);
         manager.createDiscipline(testDisciplineTwo);
 
-        testDisciplineOne.setEnd(testDisciplineTwo.getEnd());   //edit born
+        testDisciplineOne.setEnd(testDisciplineTwo.getEnd());
         manager.updateDiscipline(testDisciplineOne);
 
         assertDeepEquals(testDisciplineOne, manager.getDisciplineById(testDisciplineOne.getId()));
@@ -180,7 +180,7 @@ public class DisciplineManagerImplTest {
         manager.createDiscipline(testDisciplineOne);
         manager.createDiscipline(testDisciplineTwo);
 
-        testDisciplineOne.setMaxParticipants(testDisciplineTwo.getMaxParticipants()); //set not null points
+        testDisciplineOne.setMaxParticipants(testDisciplineTwo.getMaxParticipants());
         manager.updateDiscipline(testDisciplineOne);
 
         assertDeepEquals(testDisciplineOne, manager.getDisciplineById(testDisciplineOne.getId()));
