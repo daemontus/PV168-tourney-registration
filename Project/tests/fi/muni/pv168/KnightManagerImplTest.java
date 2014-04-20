@@ -10,6 +10,9 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,14 +44,16 @@ public class KnightManagerImplTest {
 
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws SQLException, ParseException {
         dataSource = new BasicDataSource();
         dataSource.setUrl("jdbc:derby:memory:knight-manager-test;create=true");
         DBUtils.executeSqlScript(dataSource, KnightManager.class.getResource("createTables.sql"));
         manager = new KnightManagerImpl();
         manager.setDataSource(dataSource);
 
-        testKnightOne = new Knight(null, "TestKnight", "TestCastle", new Date(0), "TestHeraldry");
+        DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+        testKnightOne = new Knight(null, "TestKnight", "TestCastle", new Date(format.parse("22.05.1992").getTime()), "TestHeraldry");
         testKnightTwo = new Knight(null, "TestKnight2", "TestCastle2", new Date(MILLIS_IN_DAY), "TestHeraldry2");
 
     }

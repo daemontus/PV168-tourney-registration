@@ -62,7 +62,7 @@ public class Knight {
 
     public void setBorn(Date born) {
         //fix for database date implementation inconsistency
-        this.born = born == null ? null : new Date(born.getTime() % MILLIS_IN_DAY);
+        this.born = born == null ? null : new Date((born.getTime() / MILLIS_IN_DAY) * MILLIS_IN_DAY);
     }
 
     public String getHeraldry() {

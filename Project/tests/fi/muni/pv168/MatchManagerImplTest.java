@@ -130,20 +130,6 @@ public class MatchManagerImplTest {
         testMatchOne = new Match(null, testKnightOne, testDisciplineOne, 5, 120);
         testMatchTwo = new Match(null, testKnightTwo, testDisciplineTwo, 4, null);
 
-       /* System.out.println("Read IDs");
-        Connection connection = dataSource.getConnection();
-        PreparedStatement getKnightIdByName = connection.prepareStatement("SELECT * FROM KNIGHTS");
-        System.out.println("Statement");
-        ResultSet result = getKnightIdByName.executeQuery();
-        System.out.println("Result"+result.getLong("ID"));
-        //getKnightIdByName.setString(1, testKnightOne.getName());
-        /*testKnightOne.setId(getKnightIdByName.executeQuery().getLong("ID"));
-        System.out.println("First");
-        getKnightIdByName.setString(1, testKnightTwo.getName());
-        testKnightTwo.setId(getKnightIdByName.executeQuery().getLong("ID"));
-        System.out.println("Second");
-        getKnightIdByName.close();
-        connection.close();*/
     }
 
     @After
