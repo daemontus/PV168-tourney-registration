@@ -13,17 +13,13 @@ import java.awt.*;
 
 public class KnightList {
 
-    public static void main(String[] args) {
-
-    }
-
     public KnightList() {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
 
                 JFrame frame = new JFrame();
                 frame.setLocationRelativeTo(null);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.setMinimumSize(new Dimension(750,355));
                 frame.setBounds(0, 0, 800, 355);
 
