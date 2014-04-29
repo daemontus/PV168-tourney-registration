@@ -84,19 +84,24 @@ public class DisciplineList {
         model.getColumn(2).setPreferredWidth(120);
         model.getColumn(3).setPreferredWidth(20);
 
+
         JScrollPane pane = new JScrollPane(content);
         pane.setPreferredSize(new Dimension(420, 300));
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.gridwidth = 2;
+        constraints.gridwidth = 3;
         panel.add(pane, constraints);
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0.5;
         constraints.weighty = 1;
         constraints.gridwidth = 1;
-        panel.add(new JButton("Edit"), constraints);
+        constraints.insets = new Insets(4,0,0,0);
+        panel.add(new JProgressBar(), constraints);
+        constraints.insets = new Insets(0,0,0,0);
         constraints.gridx = 1;
+        panel.add(new JButton("Edit"), constraints);
+        constraints.gridx = 2;
         constraints.gridy = 1;
         panel.add(new JButton("Delete"), constraints);
         return panel;
