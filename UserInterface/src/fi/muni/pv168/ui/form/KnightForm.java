@@ -1,21 +1,42 @@
-package fi.muni.pv168.ui.edit;
+package fi.muni.pv168.ui.form;
 
-import net.sourceforge.jdatepicker.JDatePanel;
+import fi.muni.pv168.Knight;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 import net.sourceforge.jdatepicker.impl.SqlDateModel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Date;
 
-public class EditKnight {
+public class KnightForm {
 
-    public EditKnight() {
+    private Knight editable;
+
+    private FormResultListener<Knight> listener;
+
+
+    private JTextField name;
+    private JTextField castle;
+    private JTextField heraldry;
+    private JDatePickerImpl born;
+
+    private JFrame frame;
+
+    public KnightForm(FormResultListener<Knight> listener) {
+        this(null, listener);
+    }
+
+    public KnightForm(Knight editable, FormResultListener<Knight> listener) {
+        this.editable = editable;
+        this.listener = listener;
+
         EventQueue.invokeLater(new Runnable() {
             public void run() {
 
-                JFrame frame = new JFrame();
+                frame = new JFrame();
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.setMinimumSize(new Dimension(320, 235));
@@ -28,6 +49,7 @@ public class EditKnight {
                 frame.setVisible(true);
             }
         });
+
     }
 
     private JPanel initCreateForm() {
@@ -37,13 +59,18 @@ public class EditKnight {
         constraints.anchor = GridBagConstraints.NORTH;
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField name = new JTextField();
-        name.setText("Prefilled");
-        JTextField castle = new JTextField();
-        castle.setText("Prefilled");
-        JDatePanel born = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(0))));
-        JTextField heraldry = new JTextField();
-        heraldry.setText("Prefilled");
+        name = new JTextField();
+        castle = new JTextField();
+        heraldry = new JTextField();
+
+        Date date = new Date(0);
+        if (editable != null) {
+            name.setText(editable.getName());
+            castle.setText(editable.getCastle());
+            heraldry.setText(editable.getHeraldry());
+            date = editable.getBorn();
+        }
+        born = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(date)));
 
         JLabel title = new JLabel("Edit Knight");
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, (int) (title.getFont().getSize() * 1.5)));
@@ -63,13 +90,13 @@ public class EditKnight {
         castleLabel.setLabelFor(castle);
         JLabel bornLabel = new JLabel("Born: ");
         bornLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        bornLabel.setLabelFor((Component) born);
+        bornLabel.setLabelFor(born);
         JLabel heraldryLabel = new JLabel("Heraldry: ");
         heraldryLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         heraldryLabel.setLabelFor(heraldry);
 
         JComponent[] objects = new JComponent[ ] {
-                nameLabel, name, castleLabel, castle, bornLabel, (JComponent) born, heraldryLabel, heraldry
+                nameLabel, name, castleLabel, castle, bornLabel, born, heraldryLabel, heraldry
         };
 
         constraints.gridwidth = 1;
@@ -96,10 +123,12 @@ public class EditKnight {
         constraints.weighty = 1;
         constraints.weightx = 0.5;
         JButton button = new JButton("Cancel");
+        button.addActionListener(cancel);
         panel.add(button, constraints);
         constraints.gridx = 1;
         constraints.weighty = 0.5;
         button = new JButton("Save");
+        button.addActionListener(submit);
         panel.add(button, constraints);
 
         panel.setPreferredSize(new Dimension(320, 100));
@@ -107,4 +136,31 @@ public class EditKnight {
         return panel;
     }
 
+    ActionListener cancel = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (listener != null) {
+                listener.onCancel();
+            }
+            frame.dispose();
+        }
+    };
+
+    ActionListener submit = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (editable != null) {
+                editable.setName(name.getText());
+                editable.setCastle(castle.getText());
+                editable.setBorn((Date) born.getModel().getValue());
+                editable.setHeraldry(heraldry.getText());
+            } else {
+                editable = new Knight(null, name.getText(), castle.getText(), (Date) born.getModel().getValue(), heraldry.getText());
+            }
+            if (listener != null) {
+                listener.onSubmit(editable);
+            }
+            frame.dispose();
+        }
+    };
 }

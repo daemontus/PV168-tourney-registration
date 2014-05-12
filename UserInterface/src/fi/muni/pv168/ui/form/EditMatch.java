@@ -1,4 +1,4 @@
-package fi.muni.pv168.ui.edit;
+package fi.muni.pv168.ui.form;
 
 import javax.swing.*;
 import java.awt.*;

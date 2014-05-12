@@ -1,4 +1,4 @@
-package fi.muni.pv168.ui;
+package fi.muni.pv168.ui.tabs;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -7,6 +7,10 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 
 public class DisciplineTab implements Tab {
+
+    public DisciplineTab() {
+
+    }
 
     @Override
     public JPanel getPanel() {
@@ -46,6 +50,11 @@ public class DisciplineTab implements Tab {
         constraints.gridy = 1;
         panel.add(new JButton("Delete"), constraints);
         return panel;
+    }
+
+    @Override
+    public JMenu getMenu() {
+        return null;
     }
 
 

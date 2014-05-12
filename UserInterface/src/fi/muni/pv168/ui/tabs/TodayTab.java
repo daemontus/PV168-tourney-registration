@@ -1,4 +1,4 @@
-package fi.muni.pv168.ui;
+package fi.muni.pv168.ui.tabs;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -119,6 +119,11 @@ public class TodayTab implements Tab {
         panel.add(pane);
 
         return panel;
+    }
+
+    @Override
+    public JMenu getMenu() {
+        return null;
     }
 
 }

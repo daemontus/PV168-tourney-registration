@@ -1,4 +1,4 @@
-package fi.muni.pv168.ui;
+package fi.muni.pv168.ui.tabs;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -6,40 +6,11 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
 
-public class KnightTab implements Tab {
+public class MatchTab implements Tab {
 
-    private TableModel knightTableModel = new AbstractTableModel() {
+    public MatchTab() {
 
-        private final Object[][] data = new Object[][] {
-                new Object[] {"TestName", "TestCastle", "12.04.1445", "Lorem Ipsum"},
-                new Object[] {"TestName", "TestCastle", "12.04.1445", "Lorem Ipsum"},
-                new Object[] {"TestName", "TestCastle", "12.04.1445", "Lorem Ipsum"},
-                new Object[] {"TestName", "TestCastle", "12.04.1445", "Lorem Ipsum"}
-
-        };
-
-        private final String[] COLUMNS = new String[]{"Name", "Castle", "Born", "Heraldry"};
-
-        @Override
-        public int getRowCount() {
-            return data.length;
-        }
-
-        @Override
-        public int getColumnCount() {
-            return COLUMNS.length;
-        }
-
-        @Override
-        public Object getValueAt(int row, int col) {
-            return data[row][col];
-        }
-
-        @Override
-        public String getColumnName(int i) {
-            return COLUMNS[i];
-        }
-    };
+    }
 
     @Override
     public JPanel getPanel() {
@@ -53,10 +24,10 @@ public class KnightTab implements Tab {
 
         TableColumnModel model = content.getColumnModel();
         content.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        model.getColumn(0).setPreferredWidth(100);
-        model.getColumn(1).setPreferredWidth(100);
+        model.getColumn(0).setPreferredWidth(150);
+        model.getColumn(1).setPreferredWidth(170);
         model.getColumn(2).setPreferredWidth(90);
-        model.getColumn(3).setPreferredWidth(130);
+        model.getColumn(3).setPreferredWidth(50);
 
         JScrollPane pane = new JScrollPane(content);
         pane.setPreferredSize(new Dimension(420, 455));
@@ -79,5 +50,43 @@ public class KnightTab implements Tab {
         panel.add(new JButton("Delete"), constraints);
         return panel;
     }
+
+    @Override
+    public JMenu getMenu() {
+        return null;
+    }
+
+    private TableModel knightTableModel = new AbstractTableModel() {
+
+        private final Object[][] data = new Object[][] {
+                new Object[] {"TestKnight", "TestDiscipline", "01", "123"},
+                new Object[] {"TestKnight", "TestDiscipline", "01", "123"},
+                new Object[] {"TestKnight", "TestDiscipline", "01", "123"},
+                new Object[] {"TestKnight", "TestDiscipline", "01", "123"}
+
+        };
+
+        private final String[] COLUMNS = new String[]{"Knight", "Discipline", "Start. number", "Points"};
+
+        @Override
+        public int getRowCount() {
+            return data.length;
+        }
+
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+
+        @Override
+        public Object getValueAt(int row, int col) {
+            return data[row][col];
+        }
+
+        @Override
+        public String getColumnName(int i) {
+            return COLUMNS[i];
+        }
+    };
 
 }

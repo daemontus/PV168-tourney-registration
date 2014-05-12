@@ -1,4 +1,4 @@
-package fi.muni.pv168.ui.edit;
+package fi.muni.pv168.ui.form;
 
 import net.sourceforge.jdatepicker.JDatePicker;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
