@@ -109,16 +109,20 @@ public class MatchForm {
         constraints.insets = new Insets(10,10,10,10);
         constraints.weighty = 1;
         constraints.weightx = 0.5;
-        JButton button = new JButton(Resources.getString("save"));
-        button.addActionListener(submit);
-        panel.add(button, constraints);
+        JButton submitButton = new JButton(Resources.getString("save"));
+        submitButton.addActionListener(submit);
+        panel.add(submitButton, constraints);
         constraints.gridx = 1;
         constraints.weighty = 0.5;
-        button = new JButton(Resources.getString("cancel"));
-        button.addActionListener(cancel);
-        panel.add(button, constraints);
+        JButton cancelButton = new JButton(Resources.getString("cancel"));
+        cancelButton.addActionListener(cancel);
+        panel.add(cancelButton, constraints);
 
         panel.setPreferredSize(new Dimension(320, 100));
+
+        frame.getRootPane().setDefaultButton(submitButton);
+        submitButton.requestFocus();
+
 
         return panel;
     }
