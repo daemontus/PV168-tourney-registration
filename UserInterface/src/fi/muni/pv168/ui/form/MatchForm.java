@@ -1,5 +1,7 @@
 package fi.muni.pv168.ui.form;
 
+import fi.muni.pv168.Discipline;
+import fi.muni.pv168.Knight;
 import fi.muni.pv168.Match;
 import fi.muni.pv168.ui.resources.Resources;
 
@@ -7,6 +9,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MatchForm {
 
@@ -21,13 +26,18 @@ public class MatchForm {
 
     private JFrame frame;
 
-    public MatchForm(FormResultListener<Match> listener) {
-        this(null, listener);
+    private KnightComboBoxModel knightModel;
+    private DisciplineComboBoxModel disciplineModel;
+
+    public MatchForm(FormResultListener<Match> listener, KnightComboBoxModel knightModel, DisciplineComboBoxModel disciplineModel) {
+        this(null, listener, knightModel, disciplineModel);
     }
 
-    public MatchForm(Match editable, FormResultListener<Match> listener) {
+    public MatchForm(Match editable, FormResultListener<Match> listener, KnightComboBoxModel knightModel, DisciplineComboBoxModel disciplineModel) {
         this.editable = editable;
         this.listener = listener;
+        this.knightModel = knightModel;
+        this.disciplineModel = disciplineModel;
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -58,7 +68,15 @@ public class MatchForm {
         discipline = new JComboBox();
         startNum = new JTextField();
         points = new JTextField();
+        knight.setModel(knightModel);
+        discipline.setModel(disciplineModel);
 
+        if (editable != null) {
+            startNum.setText(String.valueOf(editable.getStartNumber()));
+            if (editable.getPoints() != null) {
+                points.setText(String.valueOf(editable.getPoints()));
+            }
+        }
         JLabel title = new JLabel(Resources.getString("match_editor"));
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, (int) (title.getFont().getSize() * 1.5)));
         title.setHorizontalAlignment(SwingConstants.CENTER);
@@ -109,14 +127,14 @@ public class MatchForm {
         constraints.insets = new Insets(10,10,10,10);
         constraints.weighty = 1;
         constraints.weightx = 0.5;
-        JButton submitButton = new JButton(Resources.getString("save"));
-        submitButton.addActionListener(submit);
-        panel.add(submitButton, constraints);
-        constraints.gridx = 1;
-        constraints.weighty = 0.5;
         JButton cancelButton = new JButton(Resources.getString("cancel"));
         cancelButton.addActionListener(cancel);
         panel.add(cancelButton, constraints);
+        constraints.gridx = 1;
+        constraints.weighty = 0.5;
+        JButton submitButton = new JButton(Resources.getString("save"));
+        submitButton.addActionListener(submit);
+        panel.add(submitButton, constraints);
 
         panel.setPreferredSize(new Dimension(320, 100));
 
@@ -141,14 +159,30 @@ public class MatchForm {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             if (editable != null) {
-                //TODO: solve this freaking awesome ComboBoxesssss!
-                    /*editable.setKnigh(editable.getKnight());
-                    editable.setDiscipline(castle.getText());*/
+                editable.setKnight(knightModel.getSelectedKnight());
+                editable.setDiscipline(disciplineModel.getSelectedDiscipline());
                 editable.setStartNumber(Integer.parseInt(startNum.getText()));
-                editable.setPoints(Integer.parseInt(points.getText()));
+                if (points.getText().isEmpty()) {
+                    editable.setPoints(null);
+                } else {
+                    editable.setPoints(Integer.parseInt(points.getText()));
+                }
             } else {
-                //TODO: same here
-                //editable = new Match (null, name.getText(), castle.getText(), (Date) born.getModel().getValue(), heraldry.getText());
+                if (points.getText().isEmpty()) {
+                    editable = new Match(
+                            null,
+                            knightModel.getSelectedKnight(),
+                            disciplineModel.getSelectedDiscipline(),
+                            Integer.valueOf(startNum.getText()),
+                            null);
+                } else {
+                    editable = new Match(
+                            null,
+                            knightModel.getSelectedKnight(),
+                            disciplineModel.getSelectedDiscipline(),
+                            Integer.valueOf(startNum.getText()),
+                            Integer.valueOf(points.getText()));
+                }
             }
             if (listener != null) {
                 listener.onSubmit(editable);
@@ -156,4 +190,107 @@ public class MatchForm {
             frame.dispose();
         }
     };
-}
+
+    public static class KnightComboBoxModel extends AbstractListModel implements ComboBoxModel {
+
+        java.util.List<Knight> objects;
+        private Map<String, Integer> namesToIndexes = new HashMap<String, Integer>();
+        Knight selectedObject;
+
+        public KnightComboBoxModel(java.util.List<Knight> knights) {
+            objects = new ArrayList<Knight>(knights);
+            for (int i=0; i<objects.size(); i++) {
+                namesToIndexes.put(objects.get(i).getName(), i);
+            }
+        }
+
+        @Override
+        public void setSelectedItem(Object anObject) {
+            if ((selectedObject != null && !selectedObject.equals(anObject))
+                    || selectedObject == null && anObject != null) {
+                selectedObject = objects.get(namesToIndexes.get((String) anObject));
+                fireContentsChanged(this, -1, -1);
+            }
+        }
+
+        @Override
+        public Object getSelectedItem() {
+            if (selectedObject != null) {
+                return selectedObject.getName();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public int getSize() {
+            return objects.size();
+        }
+
+        @Override
+        public String getElementAt(int index) {
+            if (index >= 0 && index < objects.size()) {
+                return objects.get(index).getName();
+            } else {
+                return null;
+            }
+        }
+
+        public Knight getSelectedKnight() {
+            return selectedObject;
+        }
+
+    }
+
+    public static class DisciplineComboBoxModel extends AbstractListModel implements ComboBoxModel {
+
+        java.util.List<Discipline> objects;
+        private Map<String, Integer> namesToIndexes = new HashMap<String, Integer>();
+        Discipline selectedObject;
+
+        public DisciplineComboBoxModel(java.util.List<Discipline> disciplines) {
+            objects = new ArrayList<Discipline>(disciplines);
+            for (int i=0; i<objects.size(); i++) {
+                namesToIndexes.put(objects.get(i).getName(), i);
+            }
+        }
+
+        @Override
+        public void setSelectedItem(Object anObject) {
+            if ((selectedObject != null && !selectedObject.equals(anObject))
+                    || selectedObject == null && anObject != null) {
+                selectedObject = objects.get(namesToIndexes.get((String) anObject));
+                fireContentsChanged(this, -1, -1);
+            }
+        }
+
+        @Override
+        public Object getSelectedItem() {
+            if (selectedObject != null) {
+                return selectedObject.getName();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public int getSize() {
+            return objects.size();
+        }
+
+        @Override
+        public String getElementAt(int index) {
+            if (index >= 0 && index < objects.size()) {
+                return objects.get(index).getName();
+            } else {
+                return null;
+            }
+        }
+
+        public Discipline getSelectedDiscipline() {
+            return selectedObject;
+        }
+
+    }
+
+ }

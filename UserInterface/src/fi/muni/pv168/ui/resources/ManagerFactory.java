@@ -40,6 +40,8 @@ public class ManagerFactory {
 
     public static MatchManager initMatchManager() {
         MatchManagerImpl matchManagerImpl = new MatchManagerImpl();
+        matchManagerImpl.setKnightManager(initKnightManager());
+        matchManagerImpl.setDisciplineManager(initDisciplineManager());
         matchManagerImpl.setDataSource(getDatabase());
         return matchManagerImpl;
     }

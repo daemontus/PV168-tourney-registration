@@ -103,7 +103,7 @@ public class MatchManagerImpl implements MatchManager{
 
             conn.commit();
 
-            logger.info("Match created: "+match);
+            logger.info("Match Successfully created: "+match);
 
         } catch (SQLException ex) {
             throw logException("Error inserting match into db", ex);

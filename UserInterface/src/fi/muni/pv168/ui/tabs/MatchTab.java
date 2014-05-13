@@ -8,6 +8,8 @@ import fi.muni.pv168.ui.resources.ManagerFactory;
 import fi.muni.pv168.ui.resources.Resources;
 import fi.muni.pv168.ui.table.LocalizedCellHeader;
 import fi.muni.pv168.ui.table.model.MatchTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -18,6 +20,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MatchTab implements Tab {
+
+
+    private static final Logger logger = LoggerFactory.getLogger(MatchTab.class);
 
     private final static int CREATE_MENU_POSITION = 0;
     private final static int EDIT_MENU_POSITION = 1;
@@ -34,6 +39,9 @@ public class MatchTab implements Tab {
     private JMenu menu;
     private JProgressBar loading;
 
+    private MatchForm.KnightComboBoxModel knightComboBoxModel;
+    private MatchForm.DisciplineComboBoxModel disciplineComboBoxModel;
+
     public MatchTab() {
 
         tableModel = new MatchTableModel();
@@ -43,7 +51,7 @@ public class MatchTab implements Tab {
 
         initMenu();
 
-        new LoadTable().execute();
+        new LoadData().execute();
 
     }
 
@@ -160,7 +168,7 @@ public class MatchTab implements Tab {
         public void actionPerformed(ActionEvent actionEvent) {
             int selected = table.getSelectedRow();
             if (selected != -1) {
-                new MatchForm(tableModel.getMatch(selected), editListener);
+                new MatchForm(tableModel.getMatch(selected), editListener, knightComboBoxModel, disciplineComboBoxModel);
             }
         }
     };
@@ -168,7 +176,7 @@ public class MatchTab implements Tab {
     private ActionListener createAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            new MatchForm(createListener);
+            new MatchForm(createListener, knightComboBoxModel, disciplineComboBoxModel);
         }
     };
 
@@ -200,10 +208,12 @@ public class MatchTab implements Tab {
         }
     };
 
-    private class LoadTable extends SwingWorker<Void, Match> {
+    private class LoadData extends SwingWorker<Void, Match> {
 
         @Override
         protected Void doInBackground() throws Exception {
+            knightComboBoxModel = new MatchForm.KnightComboBoxModel(ManagerFactory.initKnightManager().findAllKnights());
+            disciplineComboBoxModel = new MatchForm.DisciplineComboBoxModel(ManagerFactory.initDisciplineManager().findAllDisciplines());
             for (Match k : matchManager.findAllMatches()) {
                 publish(k);
             }
@@ -277,8 +287,13 @@ public class MatchTab implements Tab {
         }
 
         @Override
-        protected Void doInBackground() throws Exception {
-            matchManager.createMatch(toCreate);
+        protected Void doInBackground() {
+            try {
+                matchManager.createMatch(toCreate);
+            } catch (Exception e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 
