@@ -2,6 +2,8 @@ package fi.muni.pv168;
 
 import fi.muni.pv168.utils.DBUtils;
 import fi.muni.pv168.utils.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -9,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>Implementation of KnightManager using JDBC.</p>
@@ -26,7 +26,7 @@ public class KnightManagerImpl implements KnightManager {
 
     private final static Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private static final Logger logger = Logger.getLogger(KnightManagerImpl.class.getName());
+    private final static Logger logger = LoggerFactory.getLogger(KnightManagerImpl.class);
 
     private DataSource dataSource;
 
@@ -46,6 +46,9 @@ public class KnightManagerImpl implements KnightManager {
 
     @Override
 	public void createKnight(Knight knight) {
+
+        logger.debug("Creating Knight: "+knight);
+
         checkDataSource();
 
         validate(knight);
@@ -85,9 +88,11 @@ public class KnightManagerImpl implements KnightManager {
             knight.setId(id);
 
             conn.commit();
+
+            logger.info("Knight successfully created: "+knight);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error inserting knight into db", ex);
-            throw new ServiceFailureException("Error inserting knight into db", ex);
+            throw logException("Error inserting knight into db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -96,6 +101,9 @@ public class KnightManagerImpl implements KnightManager {
 
 	@Override
 	public Knight getKnightById(Long id) {
+
+        logger.debug("Getting knight by id: "+id);
+
         checkDataSource();
 
         if (id == null) {
@@ -126,14 +134,15 @@ public class KnightManagerImpl implements KnightManager {
                 if (rs.next()) {
                     throw new ServiceFailureException("Internal integrity error: more knights with the same id!");
                 }
+                logger.info("Retrieved knight by id "+id+": "+result);
                 return result;
             } else {
+                logger.info("No knight with id "+id+" in database.");
                 return null;
             }
 
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error getting knight with id = " + id + " from DB", ex);
-            throw new ServiceFailureException("Error getting knight with id = " + id + " from DB", ex);
+            throw logException("Error getting knight with id = " + id + " from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -141,6 +150,9 @@ public class KnightManagerImpl implements KnightManager {
 
     @Override
 	public List<Knight> findAllKnights() throws ServiceFailureException {
+
+        logger.debug("Getting all knights from database.");
+
         checkDataSource();
         Connection conn = null;
         PreparedStatement st = null;
@@ -161,11 +173,10 @@ public class KnightManagerImpl implements KnightManager {
             while (rs.next()) {
                 result.add(rowToKnight(rs));
             }
+            logger.info("Retrieved "+result.size()+" knights from database.");
             return result;
         } catch (SQLException ex) {
-            String msg = "Error when getting all knights from DB";
-            logger.log(Level.SEVERE, msg, ex);
-            throw new ServiceFailureException(msg, ex);
+            throw logException("Error when getting all knights from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -173,6 +184,8 @@ public class KnightManagerImpl implements KnightManager {
 
 	@Override
 	public void updateKnight(Knight knight) throws ServiceFailureException {
+
+        logger.debug("Updating knight: "+knight);
 
         checkDataSource();
 
@@ -212,10 +225,10 @@ public class KnightManagerImpl implements KnightManager {
                 throw new ServiceFailureException("Integrity error. Updated row count: "+count);
             }
 
+            logger.info("Knight updated: "+knight);
             conn.commit();
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error updating knight in the db", ex);
-            throw new ServiceFailureException("Error updating knight in the db", ex);
+            throw logException("Error updating knight in the db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -224,6 +237,9 @@ public class KnightManagerImpl implements KnightManager {
 
 	@Override
 	public void deleteKnight(Knight knight) throws ServiceFailureException {
+
+        logger.debug("Deleting knight: "+knight);
+
         checkDataSource();
 
         if (knight == null) {
@@ -253,9 +269,10 @@ public class KnightManagerImpl implements KnightManager {
             conn.commit();
             knight.setId(null);
 
+            logger.info("Knight deleted: "+knight);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error deleting knight from the db", ex);
-            throw new ServiceFailureException("Error deleting knight from the db", ex);
+            throw logException("Error deleting knight from the db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -290,4 +307,8 @@ public class KnightManagerImpl implements KnightManager {
         }
     }
 
+    private ServiceFailureException logException(String message, Exception ex) throws ServiceFailureException {
+        logger.error(message, ex);
+        return new ServiceFailureException(message, ex);
+    }
 }
