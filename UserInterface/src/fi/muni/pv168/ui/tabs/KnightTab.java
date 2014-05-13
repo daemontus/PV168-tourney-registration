@@ -33,6 +33,7 @@ public class KnightTab implements Tab {
     private JButton deleteButton;
     private JButton editButton;
     private JMenu menu;
+    private JProgressBar loading;
 
     public KnightTab() {
 
@@ -43,6 +44,7 @@ public class KnightTab implements Tab {
 
         initMenu();
 
+        loading.setIndeterminate(true);
         new LoadTable().execute();
 
     }
@@ -104,10 +106,14 @@ public class KnightTab implements Tab {
         constraints.gridwidth = 3;
         panel.add(pane, constraints);
 
+        constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0.5;
         constraints.weighty = 1;
         constraints.gridwidth = 1;
+        constraints.insets = new Insets(4,0,0,0);
+        loading = new JProgressBar();
+        panel.add(loading, constraints);
 
         constraints.insets = new Insets(0,0,0,0);
         constraints.gridx = 1;
@@ -145,6 +151,7 @@ public class KnightTab implements Tab {
         public void actionPerformed(ActionEvent actionEvent) {
             int selected = table.getSelectedRow();
             if (selected != -1) {
+                loading.setIndeterminate(true);
                 new DeleteKnight(tableModel.getKnight(selected)).execute();
             }
         }
@@ -155,6 +162,7 @@ public class KnightTab implements Tab {
         public void actionPerformed(ActionEvent actionEvent) {
             int selected = table.getSelectedRow();
             if (selected != -1) {
+                loading.setIndeterminate(true);
                 new KnightForm(tableModel.getKnight(selected), editListener);
             }
         }
@@ -170,6 +178,7 @@ public class KnightTab implements Tab {
     FormResultListener<Knight> editListener = new FormResultListener<Knight>() {
         @Override
         public void onSubmit(Knight data) {
+            loading.setIndeterminate(true);
             new EditKnight(data).execute();
             table.clearSelection();
         }
@@ -183,6 +192,7 @@ public class KnightTab implements Tab {
     FormResultListener<Knight> createListener = new FormResultListener<Knight>() {
         @Override
         public void onSubmit(Knight data) {
+            loading.setIndeterminate(true);
             new CreateKnight(data).execute();
             table.clearSelection();
         }
@@ -196,9 +206,10 @@ public class KnightTab implements Tab {
     private class LoadTable extends SwingWorker<Void, Knight> {
 
         @Override
-        protected Void doInBackground() throws Exception {
+        protected Void doInBackground() throws InterruptedException {
             for (Knight k : knightManager.findAllKnights()) {
                 publish(k);
+                Thread.sleep(1000);
             }
             return null;
         }
@@ -208,6 +219,12 @@ public class KnightTab implements Tab {
             for (Knight knight : knights) {
                 tableModel.addKnight(knight);
             }
+        }
+
+        @Override
+        protected void done() {
+            loading.setIndeterminate(false);
+            super.done();
         }
     }
 
@@ -228,6 +245,7 @@ public class KnightTab implements Tab {
         @Override
         protected void done() {
             tableModel.removeKnight(victim);
+            loading.setIndeterminate(false);
             super.done();
         }
     }
@@ -249,6 +267,7 @@ public class KnightTab implements Tab {
         @Override
         protected void done() {
             tableModel.refreshKnight(updated);
+            loading.setIndeterminate(false);
             super.done();
         }
     }
@@ -270,6 +289,7 @@ public class KnightTab implements Tab {
         @Override
         protected void done() {
             tableModel.addKnight(toCreate);
+            loading.setIndeterminate(false);
             super.done();
         }
     }
