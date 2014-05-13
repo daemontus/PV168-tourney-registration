@@ -2,6 +2,8 @@ package fi.muni.pv168;
 
 import fi.muni.pv168.utils.DBUtils;
 import fi.muni.pv168.utils.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -9,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>Implementation of Discipline Manager using JDBC.</p>
@@ -24,11 +24,11 @@ public class DisciplineManagerImpl implements DisciplineManager {
     private static final String COL_MAX_PARTICIPANTS = "MAX_PARTICIPANTS";
     private static final String TABLE = "DISCIPLINES";
 
+    private static final Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+    private static final Logger logger = LoggerFactory.getLogger(DisciplineManagerImpl.class);
+
     private DataSource dataSource;
-
-    private final static Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
-    private static final Logger logger = Logger.getLogger(KnightManagerImpl.class.getName());
 
 
     /**
@@ -41,6 +41,9 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
     @Override
 	public void createDiscipline(Discipline discipline) {
+
+        logger.debug("Creating discipline: "+discipline);
+
         checkDataSource();
 
         validate(discipline);
@@ -80,9 +83,13 @@ public class DisciplineManagerImpl implements DisciplineManager {
             discipline.setId(id);
 
             conn.commit();
+
+            logger.info("Discipline successfully created: "+discipline);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error inserting discipline into db", ex);
-            throw new ServiceFailureException("Error inserting discipline into db", ex);
+            String message = "Error inserting discipline into db";
+            logger.error(message, ex);
+            throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -91,6 +98,9 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
     @Override
 	public Discipline getDisciplineById(Long id) {
+
+        logger.debug("Getting discipline by id: "+id);
+
         checkDataSource();
 
         if (id == null) {
@@ -121,14 +131,17 @@ public class DisciplineManagerImpl implements DisciplineManager {
                 if (rs.next()) {
                     throw new ServiceFailureException("Internal integrity error: more disciplines with the same id!");
                 }
+                logger.info("Retrieved discipline by id "+id+": "+result);
                 return result;
             } else {
+                logger.info("No discipline with id "+id+" in database.");
                 return null;
             }
 
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error getting discipline with id = " + id + " from DB", ex);
-            throw new ServiceFailureException("Error getting discipline with id = " + id + " from DB", ex);
+            String message = "Error getting discipline with id = " + id + " from DB";
+            logger.error(message, ex);
+            throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -136,6 +149,9 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
     @Override
 	public List<Discipline> findAllDisciplines() {
+
+        logger.debug("Getting all disciplines");
+
         checkDataSource();
         Connection conn = null;
         PreparedStatement st = null;
@@ -156,10 +172,13 @@ public class DisciplineManagerImpl implements DisciplineManager {
             while (rs.next()) {
                 result.add(rowToDiscipline(rs));
             }
+
+            logger.info("Retrieved "+result.size()+" disciplines from database.");
+
             return result;
         } catch (SQLException ex) {
             String msg = "Error when getting all disciplines from DB";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -168,6 +187,9 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
     @Override
 	public List<Discipline> getDisciplinesByDate(Date day) {
+
+        logger.debug("Getting discipline by date.");
+
         checkDataSource();
 
         if (day == null) {
@@ -200,10 +222,11 @@ public class DisciplineManagerImpl implements DisciplineManager {
             while (rs.next()) {
                 result.add(rowToDiscipline(rs));
             }
+            logger.debug("Retrieved "+result.size()+" disciplines from database by date: "+day);
             return result;
         } catch (SQLException ex) {
             String msg = "Error when getting disciplines from DB";
-            logger.log(Level.SEVERE, msg, ex);
+            logger.error(msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
@@ -212,6 +235,9 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
 	@Override
 	public void updateDiscipline(Discipline discipline) {
+
+        logger.debug("Updating discipline: "+discipline);
+
         checkDataSource();
 
         validate(discipline);
@@ -251,9 +277,13 @@ public class DisciplineManagerImpl implements DisciplineManager {
             }
 
             conn.commit();
+
+            logger.info("Discipline updated: "+discipline);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error updating discipline in the db", ex);
-            throw new ServiceFailureException("Error updating discipline in the db", ex);
+            String message = "Error updating discipline in the db";
+            logger.error(message, ex);
+            throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -262,6 +292,9 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
 	@Override
 	public void deleteDiscipline(Discipline discipline) {
+
+        logger.debug("Deleting discipline: "+discipline);
+
         checkDataSource();
 
         if (discipline == null) {
@@ -291,9 +324,12 @@ public class DisciplineManagerImpl implements DisciplineManager {
             conn.commit();
             discipline.setId(null);
 
+            logger.info("Discipline deleted: "+discipline);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error deleting discipline from the db", ex);
-            throw new ServiceFailureException("Error deleting discipline from the db", ex);
+            String message = "Error deleting discipline from the db";
+            logger.error(message, ex);
+            throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);

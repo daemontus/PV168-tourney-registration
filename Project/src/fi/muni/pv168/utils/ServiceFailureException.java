@@ -8,8 +8,7 @@ package fi.muni.pv168.utils;
  */
 public class ServiceFailureException extends RuntimeException {
 
-    public ServiceFailureException() {
-    }
+    public ServiceFailureException() {}
 
     public ServiceFailureException(String message) {
         super(message);

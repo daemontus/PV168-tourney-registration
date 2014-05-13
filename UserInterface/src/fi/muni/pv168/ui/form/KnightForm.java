@@ -17,7 +17,6 @@ public class KnightForm {
 
     private FormResultListener<Knight> listener;
 
-
     private JTextField name;
     private JTextField castle;
     private JTextField heraldry;

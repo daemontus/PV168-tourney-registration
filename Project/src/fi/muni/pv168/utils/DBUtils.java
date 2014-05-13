@@ -1,5 +1,8 @@
 package fi.muni.pv168.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,19 +11,15 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Utility class augmenting basic database operations
  *
- * @author Petr Adamer / Samuel Pastva
+ * @author Petr Adamer / edit Samuel Pastva
  */
 public class DBUtils {
 
-    private static final Logger logger = Logger.getLogger(
-            DBUtils.class.getName());
-
+    private static final Logger logger = LoggerFactory.getLogger(DBUtils.class);
 
     /**
      * Closes statements and connection, logs possible errors.
@@ -34,7 +33,7 @@ public class DBUtils {
                 try {
                     st.close();
                 } catch (SQLException ex) {
-                    logger.log(Level.SEVERE, "Error when closing statement", ex);
+                    logger.error("Error when closing statement", ex);
                 }
             }
         }
@@ -42,12 +41,12 @@ public class DBUtils {
             try {
                 conn.setAutoCommit(true);
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, "Error when switching autocommit mode back to true", ex);
+                logger.error("Error when switching autocommit mode back to true", ex);
             }
             try {
                 conn.close();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, "Error when closing connection", ex);
+                logger.error("Error when closing connection", ex);
             }
         }
     }
@@ -65,7 +64,7 @@ public class DBUtils {
                 }
                 conn.rollback();
             } catch (SQLException ex) {
-                logger.log(Level.SEVERE, "Error when doing rollback", ex);
+                logger.error("Error when doing rollback", ex);
             }
         }
     }
