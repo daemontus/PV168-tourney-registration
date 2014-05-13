@@ -126,4 +126,9 @@ public class TodayTab implements Tab {
         return null;
     }
 
+    @Override
+    public String getTitleKey() {
+        return "today";
+    }
+
 }

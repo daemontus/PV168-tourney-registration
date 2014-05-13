@@ -56,6 +56,11 @@ public class MatchTab implements Tab {
         return null;
     }
 
+    @Override
+    public String getTitleKey() {
+        return "matches";
+    }
+
     private TableModel knightTableModel = new AbstractTableModel() {
 
         private final Object[][] data = new Object[][] {

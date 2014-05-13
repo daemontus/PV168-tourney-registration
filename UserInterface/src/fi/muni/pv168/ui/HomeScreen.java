@@ -118,13 +118,9 @@ public class HomeScreen {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        tabbedPane.addTab(Resources.getString("today"), today.getPanel());
-
-        tabbedPane.addTab(Resources.getString("knights"), knights.getPanel());
-
-        tabbedPane.addTab(Resources.getString("disciplines"), disciplines.getPanel());
-
-        tabbedPane.addTab(Resources.getString("matches"), matches.getPanel());
+        for (Tab tab : tabs) {
+            tabbedPane.addTab(Resources.getString(tab.getTitleKey()), tab.getPanel());
+        }
 
         return tabbedPane;
     }

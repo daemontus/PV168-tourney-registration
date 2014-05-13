@@ -135,6 +135,11 @@ public class KnightTab implements Tab {
         return menu;
     }
 
+    @Override
+    public String getTitleKey() {
+        return "knights";
+    }
+
     private ActionListener deleteAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {

@@ -57,6 +57,11 @@ public class DisciplineTab implements Tab {
         return null;
     }
 
+    @Override
+    public String getTitleKey() {
+        return "disciplines";
+    }
+
 
     private TableModel knightTableModel = new AbstractTableModel() {
 
