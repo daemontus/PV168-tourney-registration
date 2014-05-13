@@ -30,9 +30,9 @@ public class MatchForm {
         this.listener = listener;
 
         EventQueue.invokeLater(new Runnable() {
-            @Override
             public void run() {
-                frame = new JFrame();
+
+                JFrame frame = new JFrame();
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.setMinimumSize(new Dimension(320, 235));
@@ -41,7 +41,7 @@ public class MatchForm {
                 frame.setTitle(Resources.getString("match_editor"));
 
                 frame.add(initCreateForm());
-
+                //Display window
                 frame.setVisible(true);
             }
         });

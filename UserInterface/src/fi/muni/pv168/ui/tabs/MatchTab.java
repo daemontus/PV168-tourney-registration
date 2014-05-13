@@ -32,6 +32,7 @@ public class MatchTab implements Tab {
     private JButton deleteButton;
     private JButton editButton;
     private JMenu menu;
+    private JProgressBar loading;
 
     public MatchTab() {
 
@@ -107,6 +108,9 @@ public class MatchTab implements Tab {
         constraints.weightx = 0.5;
         constraints.weighty = 1;
         constraints.gridwidth = 1;
+        constraints.insets = new Insets(4,0,0,0);
+        loading = new JProgressBar();
+        panel.add(loading, constraints);
 
         constraints.insets = new Insets(0,0,0,0);
         constraints.gridx = 1;
