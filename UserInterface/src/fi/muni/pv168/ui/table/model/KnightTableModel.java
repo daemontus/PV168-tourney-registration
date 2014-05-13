@@ -1,7 +1,7 @@
 package fi.muni.pv168.ui.table.model;
 
 import fi.muni.pv168.Knight;
-import fi.muni.pv168.ui.table.TableCell;
+import fi.muni.pv168.ui.table.TableColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +18,10 @@ public class KnightTableModel extends AbstractTableModel {
 
     final static Logger logger = LoggerFactory.getLogger(KnightTableModel.class);
 
-    private final static ArrayList<TableCell<Knight>> columnMapping = new ArrayList<TableCell<Knight>>();
+    private final static ArrayList<TableColumn<Knight>> columnMapping = new ArrayList<TableColumn<Knight>>();
 
     static {
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableColumn<Knight>() {
             @Override
             public Object getProperty(Knight value) {
                 return value.getName();
@@ -32,7 +32,7 @@ public class KnightTableModel extends AbstractTableModel {
                 return "name";
             }
         });
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableColumn<Knight>() {
             @Override
             public Object getProperty(Knight value) {
                 return value.getCastle();
@@ -43,7 +43,7 @@ public class KnightTableModel extends AbstractTableModel {
                 return "castle";
             }
         });
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableColumn<Knight>() {
             @Override
             public Object getProperty(Knight value) {
                 return value.getBorn().toString();
@@ -54,7 +54,7 @@ public class KnightTableModel extends AbstractTableModel {
                 return "born";
             }
         });
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableColumn<Knight>() {
             @Override
             public Object getProperty(Knight value) {
                 return value.getHeraldry();

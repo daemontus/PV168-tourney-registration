@@ -1,7 +1,7 @@
 package fi.muni.pv168.ui.table.model;
 
 import fi.muni.pv168.Discipline;
-import fi.muni.pv168.ui.table.TableCell;
+import fi.muni.pv168.ui.table.TableColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +17,10 @@ public class DisciplineTableModel extends AbstractTableModel {
 
     final static Logger logger = LoggerFactory.getLogger(DisciplineTableModel.class);
 
-    private final static ArrayList<TableCell<Discipline>> columnMapping = new ArrayList<TableCell<Discipline>>();
+    private final static ArrayList<TableColumn<Discipline>> columnMapping = new ArrayList<TableColumn<Discipline>>();
 
     static {
-        columnMapping.add(new TableCell<Discipline>() {
+        columnMapping.add(new TableColumn<Discipline>() {
             @Override
             public Object getProperty(Discipline value) {
                 return value.getName();
@@ -31,7 +31,7 @@ public class DisciplineTableModel extends AbstractTableModel {
                 return "name";
             }
         });
-        columnMapping.add(new TableCell<Discipline>() {
+        columnMapping.add(new TableColumn<Discipline>() {
             @Override
             public Object getProperty(Discipline value) {
                 return value.getStart().toString();
@@ -42,7 +42,7 @@ public class DisciplineTableModel extends AbstractTableModel {
                 return "start";
             }
         });
-        columnMapping.add(new TableCell<Discipline>() {
+        columnMapping.add(new TableColumn<Discipline>() {
             @Override
             public Object getProperty(Discipline value) {
                 return value.getEnd().toString();
@@ -53,7 +53,7 @@ public class DisciplineTableModel extends AbstractTableModel {
                 return "end";
             }
         });
-        columnMapping.add(new TableCell<Discipline>() {
+        columnMapping.add(new TableColumn<Discipline>() {
             @Override
             public Object getProperty(Discipline value) {
                 return value.getMaxParticipants();

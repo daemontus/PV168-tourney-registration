@@ -1,6 +1,6 @@
 package fi.muni.pv168.ui.table.model;
 
-import fi.muni.pv168.ui.table.TableCell;
+import fi.muni.pv168.ui.table.TableColumn;
 import fi.muni.pv168.ui.table.data.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +18,10 @@ public class ResultTableModel extends AbstractTableModel {
 
     final static Logger logger = LoggerFactory.getLogger(ResultTableModel.class);
 
-    private final static ArrayList<TableCell<Result>> columnMapping = new ArrayList<TableCell<Result>>();
+    private final static ArrayList<TableColumn<Result>> columnMapping = new ArrayList<TableColumn<Result>>();
 
     static {
-        columnMapping.add(new TableCell<Result>() {
+        columnMapping.add(new TableColumn<Result>() {
             @Override
             public Object getProperty(Result value) {
                 return value.getKnight().getName();
@@ -32,7 +32,7 @@ public class ResultTableModel extends AbstractTableModel {
                 return "knight";
             }
         });
-        columnMapping.add(new TableCell<Result>() {
+        columnMapping.add(new TableColumn<Result>() {
             @Override
             public Object getProperty(Result value) {
                 return value.getDiscipline().getName();
@@ -43,7 +43,7 @@ public class ResultTableModel extends AbstractTableModel {
                 return "discipline";
             }
         });
-        columnMapping.add(new TableCell<Result>() {
+        columnMapping.add(new TableColumn<Result>() {
             @Override
             public Object getProperty(Result value) {
                 return value.getMatch().getPoints();
