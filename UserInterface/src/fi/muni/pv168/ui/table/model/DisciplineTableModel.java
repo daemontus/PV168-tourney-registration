@@ -1,6 +1,6 @@
 package fi.muni.pv168.ui.table.model;
 
-import fi.muni.pv168.Knight;
+import fi.muni.pv168.Discipline;
 import fi.muni.pv168.ui.table.TableCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,20 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple table model to display Knights in table.
+ * Simple table model to display disciplines in JTable
  *
- * @author Samuel Pastva
  */
-public class KnightTableModel extends AbstractTableModel {
+public class DisciplineTableModel extends AbstractTableModel {
 
-    final static Logger logger = LoggerFactory.getLogger(KnightTableModel.class);
+    final static Logger logger = LoggerFactory.getLogger(DisciplineTableModel.class);
 
-    private final static ArrayList<TableCell<Knight>> columnMapping = new ArrayList<TableCell<Knight>>();
+    private final static ArrayList<TableCell<Discipline>> columnMapping = new ArrayList<TableCell<Discipline>>();
 
     static {
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableCell<Discipline>() {
             @Override
-            public Object getProperty(Knight value) {
+            public Object getProperty(Discipline value) {
                 return value.getName();
             }
 
@@ -32,42 +31,42 @@ public class KnightTableModel extends AbstractTableModel {
                 return "name";
             }
         });
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableCell<Discipline>() {
             @Override
-            public Object getProperty(Knight value) {
-                return value.getCastle();
+            public Object getProperty(Discipline value) {
+                return value.getStart().toString();
             }
 
             @Override
             public String getColumnName() {
-                return "castle";
+                return "start";
             }
         });
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableCell<Discipline>() {
             @Override
-            public Object getProperty(Knight value) {
-                return value.getBorn().toString();
+            public Object getProperty(Discipline value) {
+                return value.getEnd().toString();
             }
 
             @Override
             public String getColumnName() {
-                return "born";
+                return "end";
             }
         });
-        columnMapping.add(new TableCell<Knight>() {
+        columnMapping.add(new TableCell<Discipline>() {
             @Override
-            public Object getProperty(Knight value) {
-                return value.getHeraldry();
+            public Object getProperty(Discipline value) {
+                return value.getMaxParticipants();
             }
 
             @Override
             public String getColumnName() {
-                return "heraldry";
+                return "max_participants";
             }
         });
     }
 
-    private List<Knight> data = new ArrayList<Knight>();
+    private List<Discipline> data = new ArrayList<Discipline>();
 
     @Override
     public int getRowCount() {
@@ -104,22 +103,22 @@ public class KnightTableModel extends AbstractTableModel {
         return columnMapping.get(col).getColumnName();
     }
 
-    public void addKnight(Knight value) {
+    public void addDiscipline(Discipline value) {
         if (value == null) {
-            throw new NullPointerException("Cannot add null knights to table.");
+            throw new NullPointerException("Cannot add null disciplines to table.");
         }
         data.add(value);
         int lastRow = data.size() - 1;
         fireTableRowsInserted(lastRow, lastRow);
     }
 
-    public void removeKnight(Knight knight) {
-        if (knight == null) {
-            throw new NullPointerException("Cannot delete null knight.");
+    public void removeDiscipline(Discipline value) {
+        if (value == null) {
+            throw new NullPointerException("Cannot delete null discipline.");
         }
         int i;
         for (i=0; i<data.size(); i++) {
-            if (knight.equals(data.get(i))) {
+            if (value.equals(data.get(i))) {
                 data.remove(i);
                 break;
             }
@@ -127,7 +126,7 @@ public class KnightTableModel extends AbstractTableModel {
         fireTableRowsDeleted(i, i);
     }
 
-    public Knight getKnight(int row) {
+    public Discipline getDiscipline(int row) {
         if (row < 0 || row > data.size()) {
             String description = "Trying to get invalid row: "+row+" data size: "+data.size();
             logger.error(description);
@@ -136,14 +135,14 @@ public class KnightTableModel extends AbstractTableModel {
         return data.get(row);
     }
 
-    public void refreshKnight(Knight knight) {
-        if (knight == null) {
-            throw new NullPointerException("Cannot refresh knight to null.");
+    public void refreshDiscipline(Discipline value) {
+        if (value == null) {
+            throw new NullPointerException("Cannot refresh discipline to null.");
         }
         int i;
         for (i=0; i<data.size(); i++) {
-            if (knight.equals(data.get(i))) {
-                data.set(i, knight);
+            if (value.equals(data.get(i))) {
+                data.set(i, value);
                 break;
             }
         }
