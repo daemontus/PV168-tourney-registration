@@ -3,13 +3,13 @@ package fi.muni.pv168;
 import fi.muni.pv168.utils.DBUtils;
 import fi.muni.pv168.utils.ServiceFailureException;
 import org.apache.derby.iapi.types.JSQLType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>Implementation of MatchManager using JDBC.</p>
@@ -23,7 +23,7 @@ public class MatchManagerImpl implements MatchManager{
     private final static String COL_POINTS = "POINTS";
     private final static String TABLE = "MATCHES";
 
-    private static final Logger logger = Logger.getLogger(MatchManagerImpl.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(MatchManagerImpl.class);
 
     private DataSource dataSource;
     private KnightManager knightManager;
@@ -55,6 +55,9 @@ public class MatchManagerImpl implements MatchManager{
 
     @Override
 	public void createMatch(Match match) {
+
+        logger.debug("Creating match: "+match);
+
         checkEnvironment();
 
         validate(match);
@@ -99,9 +102,11 @@ public class MatchManagerImpl implements MatchManager{
             match.setId(id);
 
             conn.commit();
+
+            logger.info("Match created: "+match);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error inserting match into db", ex);
-            throw new ServiceFailureException("Error inserting match into db", ex);
+            throw logException("Error inserting match into db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -110,6 +115,9 @@ public class MatchManagerImpl implements MatchManager{
 
 	@Override
 	public void updateMatch(Match match) {
+
+        logger.debug("Updating match: "+match);
+
         checkEnvironment();
 
         validate(match);
@@ -153,9 +161,11 @@ public class MatchManagerImpl implements MatchManager{
             }
 
             conn.commit();
+
+            logger.info("Match updated: "+match);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error updating match in the db", ex);
-            throw new ServiceFailureException("Error updating match in the db", ex);
+            throw logException("Error updating match in the db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -164,6 +174,9 @@ public class MatchManagerImpl implements MatchManager{
 
 	@Override
 	public void deleteMatch(Match match) {
+
+        logger.debug("Deleting match: "+match);
+
         checkEnvironment();
 
         validate(match);
@@ -192,9 +205,10 @@ public class MatchManagerImpl implements MatchManager{
             conn.commit();
             match.setId(null);
 
+            logger.info("Match deleted: "+match);
+
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error deleting match from the db", ex);
-            throw new ServiceFailureException("Error deleting match from the db", ex);
+            throw logException("Error deleting match in the db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -204,6 +218,9 @@ public class MatchManagerImpl implements MatchManager{
 
     @Override
 	public List<Match> findAllMatches() {
+
+        logger.debug("Getting all matches from database.");
+
         checkEnvironment();
         Connection conn = null;
         PreparedStatement st = null;
@@ -224,11 +241,12 @@ public class MatchManagerImpl implements MatchManager{
             while (rs.next()) {
                 result.add(rowToMatch(rs));
             }
+
+            logger.info("Retrieved "+result.size()+" matches from database.");
+
             return result;
         } catch (SQLException ex) {
-            String msg = "Error when getting all matches from DB";
-            logger.log(Level.SEVERE, msg, ex);
-            throw new ServiceFailureException(msg, ex);
+            throw logException("Error when getting all matches from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -236,6 +254,8 @@ public class MatchManagerImpl implements MatchManager{
 
 	@Override
 	public Match getMatchById(Long id) {
+
+        logger.debug("Getting match by id: "+id);
         checkEnvironment();
 
         if (id == null) {
@@ -267,14 +287,15 @@ public class MatchManagerImpl implements MatchManager{
                 if (rs.next()) {
                     throw new ServiceFailureException("Internal integrity error: more matches with the same id!");
                 }
+                logger.info("Retrieved match by id: "+result);
                 return result;
             } else {
+                logger.info("No match with id "+id+" in database");
                 return null;
             }
 
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error getting match with id = " + id + " from DB", ex);
-            throw new ServiceFailureException("Error getting match with id = " + id + " from DB", ex);
+            throw logException("Error getting match with id = " + id + " from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -282,6 +303,9 @@ public class MatchManagerImpl implements MatchManager{
 
 	@Override
 	public List<Match> findMatchesForKnight(Knight knight) {
+
+        logger.debug("Finding all matches for knight: "+knight);
+
 		checkEnvironment();
 
         if (knight == null) {
@@ -313,10 +337,10 @@ public class MatchManagerImpl implements MatchManager{
             while (rs.next()) {
                 result.add(rowToMatch(rs));
             }
+            logger.info("Found "+result.size()+" matches for knight: "+knight.getId());
             return result;
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error getting match with knight with id = " + knight.getId()  + " from DB", ex);
-            throw new ServiceFailureException("Error getting knight with id = " + knight.getId() + " from DB", ex);
+            throw logException("Error getting match with knight with id = " + knight.getId()  + " from DB", ex);
         }  finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -324,6 +348,9 @@ public class MatchManagerImpl implements MatchManager{
 
 	@Override
 	public List<Match> findMatchesForDiscipline(Discipline discipline) {
+
+        logger.debug("Finding all matches for discipline: "+discipline);
+
         checkEnvironment();
 
         if (discipline == null) {
@@ -355,10 +382,10 @@ public class MatchManagerImpl implements MatchManager{
             while (rs.next()) {
                 result.add(rowToMatch(rs));
             }
+            logger.info("Found "+result.size()+" matches for discipline: "+discipline.getId());
             return result;
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error getting match with discipline with id = " + discipline.getId()  + " from DB", ex);
-            throw new ServiceFailureException("Error getting discipline with id = " + discipline.getId() + " from DB", ex);
+            throw logException("Error getting match with discipline with id = " + discipline.getId()  + " from DB", ex);
         }  finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -366,6 +393,9 @@ public class MatchManagerImpl implements MatchManager{
 
 	@Override
 	public Match findMatchForKnightAndDiscipline(Knight knight, Discipline discipline) {
+
+        logger.debug("Finding match for knight: "+knight+" and discipline: "+discipline);
+
         checkEnvironment();
 
         if (discipline == null) {
@@ -408,14 +438,14 @@ public class MatchManagerImpl implements MatchManager{
                 if (rs.next()) {
                     throw new ServiceFailureException("Internal integrity error: more matches with the same knight and discipline!");
                 }
+                logger.info("Retrieved match for knight: "+knight.getId()+" and discipline: "+discipline.getId()+": "+result);
                 return result;
             } else {
+                logger.info("No match for knight: "+knight.getId()+" and discipline "+discipline.getId()+" in database.");
                 return null;
             }
         } catch (SQLException ex) {
-            String msg = "Error getting match for a knight and a discipline.";
-            logger.log(Level.SEVERE, msg, ex);
-            throw new ServiceFailureException(msg, ex);
+            throw logException("Error getting match for a knight and a discipline.", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -454,5 +484,10 @@ public class MatchManagerImpl implements MatchManager{
         if (match.getKnight().getId() == null) {
             throw new IllegalArgumentException("Match with Knight without id. Insert knight into db first.");
         }
+    }
+
+    private ServiceFailureException logException(String message, Exception ex) {
+        logger.error(message, ex);
+        return new ServiceFailureException(message, ex);
     }
 }
