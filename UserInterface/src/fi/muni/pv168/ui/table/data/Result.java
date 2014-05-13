@@ -1,4 +1,4 @@
-package fi.muni.pv168.ui.table;
+package fi.muni.pv168.ui.table.data;
 
 import fi.muni.pv168.Discipline;
 import fi.muni.pv168.Knight;

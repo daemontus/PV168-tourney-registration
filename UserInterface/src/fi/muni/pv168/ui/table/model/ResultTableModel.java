@@ -1,7 +1,7 @@
 package fi.muni.pv168.ui.table.model;
 
-import fi.muni.pv168.ui.table.Result;
 import fi.muni.pv168.ui.table.TableCell;
+import fi.muni.pv168.ui.table.data.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
