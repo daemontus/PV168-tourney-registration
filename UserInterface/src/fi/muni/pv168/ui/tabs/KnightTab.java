@@ -151,7 +151,6 @@ public class KnightTab implements Tab {
         public void actionPerformed(ActionEvent actionEvent) {
             int selected = table.getSelectedRow();
             if (selected != -1) {
-                loading.setIndeterminate(true);
                 new DeleteKnight(tableModel.getKnight(selected)).execute();
             }
         }
@@ -162,7 +161,6 @@ public class KnightTab implements Tab {
         public void actionPerformed(ActionEvent actionEvent) {
             int selected = table.getSelectedRow();
             if (selected != -1) {
-                loading.setIndeterminate(true);
                 new KnightForm(tableModel.getKnight(selected), editListener);
             }
         }

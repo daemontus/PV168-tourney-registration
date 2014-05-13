@@ -12,8 +12,6 @@ public class HomeScreen {
 
     final static Logger logger = LoggerFactory.getLogger(HomeScreen.class);
 
-    JMenu disciplineMenu, matchMenu;
-
     Tab today, knights, disciplines, matches;
 
     Tab[] tabs;
@@ -69,14 +67,7 @@ public class HomeScreen {
     private JMenuBar initMenu() {
 
         //Where the GUI is created:
-        JMenuBar menuBar;
-        JMenuItem menuItem;
-
-        //Create the menu bar.
-        menuBar = new JMenuBar();
-
-        disciplineMenu = new JMenu("Discipline");
-        matchMenu = new JMenu("Match");
+        JMenuBar menuBar = new JMenuBar();
 
         for (Tab tab : tabs) {
             JMenu menu = tab.getMenu();
@@ -84,32 +75,6 @@ public class HomeScreen {
                 menuBar.add(menu);
             }
         }
-
-        //toto pojde pred hned ako sa prerobia taby
-        menuBar.add(disciplineMenu);
-        menuBar.add(matchMenu);
-
-        menuItem = new JMenuItem("New Discipline...");
-        disciplineMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Edit selected...");
-        menuItem.setEnabled(false);
-        disciplineMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Delete selected...");
-        menuItem.setEnabled(false);
-        disciplineMenu.add(menuItem);
-
-        menuItem = new JMenuItem("New Match...");
-        matchMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Edit selected...");
-        menuItem.setEnabled(false);
-        matchMenu.add(menuItem);
-
-        menuItem = new JMenuItem("Delete selected...");
-        menuItem.setEnabled(false);
-        matchMenu.add(menuItem);
 
         return menuBar;
     }

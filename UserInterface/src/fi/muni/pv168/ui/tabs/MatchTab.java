@@ -25,7 +25,7 @@ public class MatchTab implements Tab {
 
 
     private MatchTableModel tableModel;
-    private MatchManager MatchManager;
+    private MatchManager matchManager;
 
     private JPanel panel;
     private JTable table;
@@ -37,7 +37,7 @@ public class MatchTab implements Tab {
     public MatchTab() {
 
         tableModel = new MatchTableModel();
-        MatchManager = ManagerFactory.initMatchManager();
+        matchManager = ManagerFactory.initMatchManager();
 
         initUi();
 
@@ -104,6 +104,7 @@ public class MatchTab implements Tab {
         constraints.gridwidth = 3;
         panel.add(pane, constraints);
 
+        constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0.5;
         constraints.weighty = 1;
@@ -111,6 +112,7 @@ public class MatchTab implements Tab {
         constraints.insets = new Insets(4,0,0,0);
         loading = new JProgressBar();
         panel.add(loading, constraints);
+
 
         constraints.insets = new Insets(0,0,0,0);
         constraints.gridx = 1;
@@ -173,6 +175,7 @@ public class MatchTab implements Tab {
     FormResultListener<Match> editListener = new FormResultListener<Match>() {
         @Override
         public void onSubmit(Match data) {
+            loading.setIndeterminate(true);
             new EditMatch(data).execute();
             table.clearSelection();
         }
@@ -186,6 +189,7 @@ public class MatchTab implements Tab {
     FormResultListener<Match> createListener = new FormResultListener<Match>() {
         @Override
         public void onSubmit(Match data) {
+            loading.setIndeterminate(true);
             new CreateMatch(data).execute();
             table.clearSelection();
         }
@@ -200,7 +204,7 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            for (Match k : MatchManager.findAllMatches()) {
+            for (Match k : matchManager.findAllMatches()) {
                 publish(k);
             }
             return null;
@@ -211,6 +215,12 @@ public class MatchTab implements Tab {
             for (Match match : matches) {
                 tableModel.addMatch(match);
             }
+        }
+
+        @Override
+        protected void done() {
+            super.done();
+            loading.setIndeterminate(false);
         }
     }
 
@@ -224,13 +234,14 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            MatchManager.deleteMatch(victim);
+            matchManager.deleteMatch(victim);
             return null;
         }
 
         @Override
         protected void done() {
             tableModel.removeMatch(victim);
+            loading.setIndeterminate(false);
             super.done();
         }
     }
@@ -245,13 +256,14 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            MatchManager.updateMatch(updated);
+            matchManager.updateMatch(updated);
             return null;
         }
 
         @Override
         protected void done() {
             tableModel.refreshMatch(updated);
+            loading.setIndeterminate(false);
             super.done();
         }
     }
@@ -266,13 +278,14 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            MatchManager.createMatch(toCreate);
+            matchManager.createMatch(toCreate);
             return null;
         }
 
         @Override
         protected void done() {
             tableModel.addMatch(toCreate);
+            loading.setIndeterminate(false);
             super.done();
         }
     }

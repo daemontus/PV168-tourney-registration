@@ -32,7 +32,7 @@ public class MatchForm {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
 
-                JFrame frame = new JFrame();
+                frame = new JFrame();
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.setMinimumSize(new Dimension(320, 235));
@@ -75,7 +75,7 @@ public class MatchForm {
         JLabel disciplineLabel = new JLabel(Resources.getString("discipline"));
         disciplineLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         disciplineLabel.setLabelFor(discipline);
-        JLabel startNumLabel = new JLabel(Resources.getString("start_num"));
+        JLabel startNumLabel = new JLabel(Resources.getString("start_number"));
         startNumLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         startNumLabel.setLabelFor(startNum);
         JLabel pointsLabel = new JLabel(Resources.getString("points"));
