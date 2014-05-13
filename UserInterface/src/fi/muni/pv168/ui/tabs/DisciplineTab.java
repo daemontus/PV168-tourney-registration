@@ -8,6 +8,9 @@ import fi.muni.pv168.ui.resources.ManagerFactory;
 import fi.muni.pv168.ui.resources.Resources;
 import fi.muni.pv168.ui.table.LocalizedCellHeader;
 import fi.muni.pv168.ui.table.model.DisciplineTableModel;
+import fi.muni.pv168.utils.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -18,6 +21,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class DisciplineTab implements Tab {
+
+    private static final Logger logger = LoggerFactory.getLogger(DisciplineTab.class);
 
     private final static int CREATE_MENU_POSITION = 0;
     private final static int EDIT_MENU_POSITION = 1;
@@ -204,10 +209,14 @@ public class DisciplineTab implements Tab {
     private class LoadTable extends SwingWorker<Void, Discipline> {
 
         @Override
-        protected Void doInBackground() throws InterruptedException {
-            for (Discipline k : disciplineManager.findAllDisciplines()) {
-                publish(k);
-                Thread.sleep(1000);
+        protected Void doInBackground() {
+            try {
+                for (Discipline k : disciplineManager.findAllDisciplines()) {
+                    publish(k);
+                }
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
             }
             return null;
         }
@@ -236,7 +245,12 @@ public class DisciplineTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            disciplineManager.deleteDiscipline(victim);
+            try {
+                disciplineManager.deleteDiscipline(victim);
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 
@@ -258,7 +272,12 @@ public class DisciplineTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            disciplineManager.updateDiscipline(updated);
+            try {
+                disciplineManager.updateDiscipline(updated);
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 
@@ -280,7 +299,12 @@ public class DisciplineTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            disciplineManager.createDiscipline(toCreate);
+            try {
+                disciplineManager.createDiscipline(toCreate);
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 

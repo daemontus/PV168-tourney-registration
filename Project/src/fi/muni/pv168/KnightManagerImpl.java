@@ -10,7 +10,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * <p>Implementation of KnightManager using JDBC.</p>
@@ -24,7 +23,8 @@ public class KnightManagerImpl implements KnightManager {
     private final static String COL_HERALDRY = "HERALDRY";
     private final static String TABLE = "KNIGHTS";
 
-    private final static Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    //private final static Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    private final static Calendar gmtTime = Calendar.getInstance();
 
     private final static Logger logger = LoggerFactory.getLogger(KnightManagerImpl.class);
 

@@ -5,8 +5,6 @@ import java.util.ResourceBundle;
 
 public class Resources {
 
-    public static String TOURNEY_MANAGER = "tourney_manager";
-
     private static ResourceBundle bundle;
 
     public static String getString(String key) {

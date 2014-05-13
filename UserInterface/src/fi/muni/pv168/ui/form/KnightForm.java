@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Date;
+import java.util.Calendar;
 
 public class KnightForm {
 
@@ -63,7 +64,7 @@ public class KnightForm {
         castle = new JTextField();
         heraldry = new JTextField();
 
-        Date date = new Date(0);
+        Date date = new Date(Calendar.getInstance().getTime().getTime());
         if (editable != null) {
             name.setText(editable.getName());
             castle.setText(editable.getCastle());
@@ -131,6 +132,8 @@ public class KnightForm {
         button.addActionListener(submit);
         panel.add(button, constraints);
 
+        frame.getRootPane().setDefaultButton(button);
+
         panel.setPreferredSize(new Dimension(320, 100));
 
         return panel;
@@ -149,6 +152,19 @@ public class KnightForm {
     ActionListener submit = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
+            //validate form
+            if (name.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, Resources.getString("name_too_short"));
+                return;
+            }
+            if (castle.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, Resources.getString("castle_too_short"));
+                return;
+            }
+            if (heraldry.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, Resources.getString("heraldry_too_short"));
+                return;
+            }
             if (editable != null) {
                 editable.setName(name.getText());
                 editable.setCastle(castle.getText());

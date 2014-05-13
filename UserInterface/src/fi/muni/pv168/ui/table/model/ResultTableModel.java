@@ -46,7 +46,7 @@ public class ResultTableModel extends AbstractTableModel {
         columnMapping.add(new TableColumn<Result>() {
             @Override
             public Object getProperty(Result value) {
-                return value.getMatch().getPoints();
+                return value.getPoints();
             }
 
             @Override

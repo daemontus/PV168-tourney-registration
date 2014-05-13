@@ -20,7 +20,7 @@ public class HomeScreen {
 
         //hack to enable native OS X menu functionality
         System.setProperty("apple.laf.useScreenMenuBar", "true");
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getString(Resources.TOURNEY_MANAGER));
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getString("tourney_manager"));
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
@@ -52,7 +52,7 @@ public class HomeScreen {
                 frame.setMinimumSize(new Dimension(200, 550));
                 frame.setBounds(0, 0, 700, 550);
 
-                frame.setTitle(Resources.getString(Resources.TOURNEY_MANAGER));
+                frame.setTitle(Resources.getString("tourney_manager"));
 
                 frame.setJMenuBar(initMenu());
 
@@ -66,7 +66,6 @@ public class HomeScreen {
 
     private JMenuBar initMenu() {
 
-        //Where the GUI is created:
         JMenuBar menuBar = new JMenuBar();
 
         for (Tab tab : tabs) {

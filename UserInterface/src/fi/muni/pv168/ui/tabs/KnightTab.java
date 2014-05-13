@@ -8,6 +8,9 @@ import fi.muni.pv168.ui.resources.ManagerFactory;
 import fi.muni.pv168.ui.resources.Resources;
 import fi.muni.pv168.ui.table.LocalizedCellHeader;
 import fi.muni.pv168.ui.table.model.KnightTableModel;
+import fi.muni.pv168.utils.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -20,10 +23,11 @@ import java.util.List;
 
 public class KnightTab implements Tab {
 
+    private static final Logger logger = LoggerFactory.getLogger(KnightTab.class);
+
     private final static int CREATE_MENU_POSITION = 0;
     private final static int EDIT_MENU_POSITION = 1;
     private final static int DELETE_MENU_POSITION = 2;
-
 
     private KnightTableModel tableModel;
     private KnightManager knightManager;
@@ -68,20 +72,22 @@ public class KnightTab implements Tab {
     }
 
     private void initUi() {
+
+        //init layout
         panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.NORTH;
 
+        //init table
         table = new JTable(tableModel);
-
         table.getTableHeader().setDefaultRenderer(new LocalizedCellHeader(table));
-
         table.setRowHeight(20);
 
         TableColumnModel model = table.getColumnModel();
 
+        //selection listener
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
@@ -106,6 +112,7 @@ public class KnightTab implements Tab {
         constraints.gridwidth = 3;
         panel.add(pane, constraints);
 
+        //progressbar
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0.5;
@@ -118,6 +125,7 @@ public class KnightTab implements Tab {
         constraints.insets = new Insets(0,0,0,0);
         constraints.gridx = 1;
 
+        //edit button
         editButton = new JButton(Resources.getString("edit"));
         editButton.addActionListener(editAction);
         editButton.setEnabled(false);
@@ -125,6 +133,7 @@ public class KnightTab implements Tab {
 
         constraints.gridx = 2;
 
+        //delete button
         deleteButton = new JButton(Resources.getString("delete"));
         deleteButton.addActionListener(deleteAction);
         deleteButton.setEnabled(false);
@@ -177,8 +186,8 @@ public class KnightTab implements Tab {
         @Override
         public void onSubmit(Knight data) {
             loading.setIndeterminate(true);
-            new EditKnight(data).execute();
             table.clearSelection();
+            new EditKnight(data).execute();
         }
 
         @Override
@@ -191,8 +200,8 @@ public class KnightTab implements Tab {
         @Override
         public void onSubmit(Knight data) {
             loading.setIndeterminate(true);
-            new CreateKnight(data).execute();
             table.clearSelection();
+            new CreateKnight(data).execute();
         }
 
         @Override
@@ -204,11 +213,16 @@ public class KnightTab implements Tab {
     private class LoadTable extends SwingWorker<Void, Knight> {
 
         @Override
-        protected Void doInBackground() throws InterruptedException {
-            for (Knight k : knightManager.findAllKnights()) {
-                publish(k);
-                Thread.sleep(1000);
+        protected Void doInBackground() {
+            try {
+                for (Knight k : knightManager.findAllKnights()) {
+                    publish(k);
+                }
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
             }
+
             return null;
         }
 
@@ -235,8 +249,13 @@ public class KnightTab implements Tab {
         }
 
         @Override
-        protected Void doInBackground() throws Exception {
-            knightManager.deleteKnight(victim);
+        protected Void doInBackground() {
+            try {
+                knightManager.deleteKnight(victim);
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 
@@ -258,7 +277,12 @@ public class KnightTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            knightManager.updateKnight(updated);
+            try {
+                knightManager.updateKnight(updated);
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 
@@ -280,7 +304,12 @@ public class KnightTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            knightManager.createKnight(toCreate);
+            try {
+                knightManager.createKnight(toCreate);
+            } catch (ServiceFailureException e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 

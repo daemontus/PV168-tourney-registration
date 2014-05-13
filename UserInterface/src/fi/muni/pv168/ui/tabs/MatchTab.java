@@ -1,5 +1,7 @@
 package fi.muni.pv168.ui.tabs;
 
+import fi.muni.pv168.Discipline;
+import fi.muni.pv168.Knight;
 import fi.muni.pv168.Match;
 import fi.muni.pv168.MatchManager;
 import fi.muni.pv168.ui.form.FormResultListener;
@@ -18,6 +20,7 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class MatchTab implements Tab {
 
@@ -46,6 +49,8 @@ public class MatchTab implements Tab {
 
         tableModel = new MatchTableModel();
         matchManager = ManagerFactory.initMatchManager();
+        knightComboBoxModel = new MatchForm.KnightComboBoxModel(new ArrayList<Knight>());
+        disciplineComboBoxModel = new MatchForm.DisciplineComboBoxModel(new ArrayList<Discipline>());
 
         initUi();
 
@@ -212,10 +217,15 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            knightComboBoxModel = new MatchForm.KnightComboBoxModel(ManagerFactory.initKnightManager().findAllKnights());
-            disciplineComboBoxModel = new MatchForm.DisciplineComboBoxModel(ManagerFactory.initDisciplineManager().findAllDisciplines());
-            for (Match k : matchManager.findAllMatches()) {
-                publish(k);
+            try {
+                knightComboBoxModel = new MatchForm.KnightComboBoxModel(ManagerFactory.initKnightManager().findAllKnights());
+                disciplineComboBoxModel = new MatchForm.DisciplineComboBoxModel(ManagerFactory.initDisciplineManager().findAllDisciplines());
+                for (Match k : matchManager.findAllMatches()) {
+                    publish(k);
+                }
+            } catch (Exception e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
             }
             return null;
         }
@@ -244,7 +254,12 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            matchManager.deleteMatch(victim);
+            try {
+                matchManager.deleteMatch(victim);
+            } catch (Exception e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 
@@ -266,7 +281,12 @@ public class MatchTab implements Tab {
 
         @Override
         protected Void doInBackground() throws Exception {
-            matchManager.updateMatch(updated);
+            try {
+                matchManager.updateMatch(updated);
+            } catch (Exception e) {
+                logger.error("Unexpected error while creating match", e);
+                JOptionPane.showMessageDialog(null, Resources.getString("unexpected_error"));
+            }
             return null;
         }
 

@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 public class DisciplineForm {
 
@@ -51,7 +52,7 @@ public class DisciplineForm {
                 frame.setTitle(Resources.getString("discipline_editor"));
 
                 frame.add(initCreateForm());
-                // Zobrazíme okno
+
                 frame.setVisible(true);
             }
         });
@@ -69,8 +70,8 @@ public class DisciplineForm {
         endTime = buildTimeSpinner();
         maxParticipants = new JTextField();
 
-        Timestamp start = new Timestamp(0);
-        Timestamp end = new Timestamp(1);
+        Timestamp start = new Timestamp(Calendar.getInstance().getTime().getTime());
+        Timestamp end = new Timestamp(Calendar.getInstance().getTime().getTime());
         if (editable != null) {
             name.setText(editable.getName());
             start = editable.getStart();
@@ -79,10 +80,11 @@ public class DisciplineForm {
             endTime.getModel().setValue(new Date(end.getTime()));
             maxParticipants.setText(String.valueOf(editable.getMaxParticipants()));
         }
+        System.out.println(start.getTime()+" "+end.getTime());
         startDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(start.getTime()))));
         endDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(end.getTime()))));
 
-        JLabel title = new JLabel("Edit Discipline");
+        JLabel title = new JLabel(Resources.getString("discipline_editor"));
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, (int) (title.getFont().getSize() * 1.5)));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -92,22 +94,22 @@ public class DisciplineForm {
         constraints.gridwidth = 2;
         panel.add(title, constraints);
 
-        JLabel nameLabel = new JLabel("Name: ");
+        JLabel nameLabel = new JLabel(Resources.getString("name"));
         nameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         nameLabel.setLabelFor(name);
-        JLabel startDateLabel = new JLabel("Start date: ");
+        JLabel startDateLabel = new JLabel(Resources.getString("start_date"));
         startDateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         startDateLabel.setLabelFor(startDate);
-        JLabel startTimeLabel = new JLabel("Start time: ");
+        JLabel startTimeLabel = new JLabel(Resources.getString("start_time"));
         startTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         startTimeLabel.setLabelFor(startTime);
-        JLabel endDateLabel = new JLabel("End date: ");
+        JLabel endDateLabel = new JLabel(Resources.getString("end_date"));
         endDateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         endDateLabel.setLabelFor(endDate);
-        JLabel endTimeLabel = new JLabel("End time: ");
+        JLabel endTimeLabel = new JLabel(Resources.getString("end_time"));
         endTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         endTimeLabel.setLabelFor(endTime);
-        JLabel maxParticipantsLabel = new JLabel("Max. participants: ");
+        JLabel maxParticipantsLabel = new JLabel(Resources.getString("max_participants"));
         maxParticipantsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         maxParticipantsLabel.setLabelFor(maxParticipants);
 
@@ -141,12 +143,12 @@ public class DisciplineForm {
         constraints.insets = new Insets(10,10,10,10);
         constraints.weighty = 1;
         constraints.weightx = 0.5;
-        JButton button = new JButton("Cancel");
+        JButton button = new JButton(Resources.getString("cancel"));
         button.addActionListener(cancel);
         panel.add(button, constraints);
         constraints.gridx = 1;
         constraints.weighty = 0.5;
-        button = new JButton("Save");
+        button = new JButton(Resources.getString("save"));
         button.addActionListener(submit);
         panel.add(button, constraints);
 
@@ -177,28 +179,32 @@ public class DisciplineForm {
     ActionListener submit = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            //TODO: Validacia dat
+            long start = ((Date) startDate.getModel().getValue()).getTime() + ((java.util.Date)startTime.getModel().getValue()).getTime() % MILLIS_IN_DAY;
+            long end = ((Date) endDate.getModel().getValue()).getTime() + ((java.util.Date)endTime.getModel().getValue()).getTime() % MILLIS_IN_DAY;
+            System.out.println(start+" "+end);
+            //validate form
+            if (name.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, Resources.getString("name_too_short"));
+                return;
+            }
+            int maxParticipantsNum;
+            try {
+                maxParticipantsNum = Integer.parseInt(maxParticipants.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, Resources.getString("participants_not_num"));
+                return;
+            }
+            if (start > end) {
+                JOptionPane.showMessageDialog(null, Resources.getString("invalid_duration"));
+                return;
+            }
             if (editable != null) {
                 editable.setName(name.getText());
-                long start = ((Date) startDate.getModel().getValue()).getTime() + ((java.util.Date)startTime.getModel().getValue()).getTime() % MILLIS_IN_DAY;
                 editable.setStart(new Timestamp(start));
-                long end = ((Date) endDate.getModel().getValue()).getTime() + ((java.util.Date)endTime.getModel().getValue()).getTime() % MILLIS_IN_DAY;
                 editable.setEnd(new Timestamp(end));
-                editable.setMaxParticipants(Integer.valueOf(maxParticipants.getText()));
+                editable.setMaxParticipants(maxParticipantsNum);
             } else {
-                long start = ((Date) startDate.getModel().getValue()).getTime() + ((java.util.Date)startTime.getModel().getValue()).getTime();
-                long end = ((Date) endDate.getModel().getValue()).getTime() + ((java.util.Date)endTime.getModel().getValue()).getTime();
-                if (name == null) {
-                    System.out.println("Name is null");
-                }
-                if (maxParticipants == null) {
-                    System.out.println("Participants is null");
-                }
-                if (Integer.valueOf(maxParticipants.getText()) == 0) {
-                    System.out.println("Max num is null");
-
-                }
-                editable = new Discipline(null, name.getText(), new Timestamp(start), new Timestamp(end), Integer.valueOf(maxParticipants.getText()));
+                editable = new Discipline(null, name.getText(), new Timestamp(start), new Timestamp(end), maxParticipantsNum);
             }
             if (listener != null) {
                 listener.onSubmit(editable);

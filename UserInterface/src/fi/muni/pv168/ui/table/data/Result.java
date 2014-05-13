@@ -2,19 +2,16 @@ package fi.muni.pv168.ui.table.data;
 
 import fi.muni.pv168.Discipline;
 import fi.muni.pv168.Knight;
-import fi.muni.pv168.Match;
 
 public class Result {
     private Knight knight;
     private Discipline discipline;
-    private Match match;
+    private Integer points;
 
-    public Result() {}
-
-    public Result(Knight knight, Discipline discipline, Match match) {
+    public Result(Knight knight, Discipline discipline, Integer points) {
         this.knight = knight;
         this.discipline = discipline;
-        this.match = match;
+        this.points = points;
     }
 
     public Knight getKnight() {
@@ -33,11 +30,11 @@ public class Result {
         this.discipline = discipline;
     }
 
-    public Match getMatch() {
-        return match;
+    public Integer getPoints() {
+        return points;
     }
 
-    public void setMatch(Match match) {
-        this.match = match;
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 }

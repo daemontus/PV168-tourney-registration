@@ -10,7 +10,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * <p>Implementation of Discipline Manager using JDBC.</p>
@@ -24,7 +23,8 @@ public class DisciplineManagerImpl implements DisciplineManager {
     private static final String COL_MAX_PARTICIPANTS = "MAX_PARTICIPANTS";
     private static final String TABLE = "DISCIPLINES";
 
-    private static final Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    //private static final Calendar gmtTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    private static final Calendar gmtTime = Calendar.getInstance();
 
     private static final Logger logger = LoggerFactory.getLogger(DisciplineManagerImpl.class);
 

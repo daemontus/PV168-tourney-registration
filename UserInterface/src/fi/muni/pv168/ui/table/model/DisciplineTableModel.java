@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.table.AbstractTableModel;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,10 @@ public class DisciplineTableModel extends AbstractTableModel {
         columnMapping.add(new TableColumn<Discipline>() {
             @Override
             public Object getProperty(Discipline value) {
-                return value.getStart().toString();
+                //TimeZone tz = TimeZone.getTimeZone("GMT");
+                DateFormat full = DateFormat.getDateTimeInstance();
+                //full.setTimeZone(tz);
+                return full.format(value.getStart());
             }
 
             @Override
@@ -45,7 +49,10 @@ public class DisciplineTableModel extends AbstractTableModel {
         columnMapping.add(new TableColumn<Discipline>() {
             @Override
             public Object getProperty(Discipline value) {
-                return value.getEnd().toString();
+                //TimeZone tz = TimeZone.getTimeZone("GMT");
+                DateFormat full = DateFormat.getDateTimeInstance();
+                //full.setTimeZone(tz);
+                return full.format(value.getEnd());
             }
 
             @Override

@@ -19,8 +19,6 @@ public class MatchForm {
 
     private FormResultListener<Match> listener;
 
-    private JComboBox knight;
-    private JComboBox discipline;
     private JTextField startNum;
     private JTextField points;
 
@@ -64,8 +62,8 @@ public class MatchForm {
         constraints.anchor = GridBagConstraints.NORTH;
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        knight = new JComboBox();
-        discipline = new JComboBox();
+        JComboBox knight = new JComboBox();
+        JComboBox discipline = new JComboBox();
         startNum = new JTextField();
         points = new JTextField();
         knight.setModel(knightModel);
@@ -75,6 +73,12 @@ public class MatchForm {
             startNum.setText(String.valueOf(editable.getStartNumber()));
             if (editable.getPoints() != null) {
                 points.setText(String.valueOf(editable.getPoints()));
+            }
+            if (editable.getKnight() != null) {
+                knightModel.setSelectedItem(editable.getKnight().getName());
+            }
+            if (editable.getDiscipline() != null) {
+                disciplineModel.setSelectedItem(editable.getDiscipline().getName());
             }
         }
         JLabel title = new JLabel(Resources.getString("match_editor"));
@@ -158,6 +162,35 @@ public class MatchForm {
     ActionListener submit = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
+            //validate form
+            int startNumber;
+            try {
+                startNumber = Integer.parseInt(startNum.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, Resources.getString("start_num_not_num"));
+                return;
+            }
+
+            int pointNum = 0;
+            if (!points.getText().isEmpty()) {
+                try {
+                    pointNum = Integer.parseInt(points.getText());
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, Resources.getString("points_not_num"));
+                    return;
+                }
+            }
+
+            if (knightModel.getSelectedKnight() == null) {
+                JOptionPane.showMessageDialog(null, Resources.getString("knight_not_selected"));
+                return;
+            }
+
+            if (disciplineModel.getSelectedDiscipline() == null) {
+                JOptionPane.showMessageDialog(null, Resources.getString("discipline_not_selected"));
+                return;
+            }
+
             if (editable != null) {
                 editable.setKnight(knightModel.getSelectedKnight());
                 editable.setDiscipline(disciplineModel.getSelectedDiscipline());
@@ -173,15 +206,15 @@ public class MatchForm {
                             null,
                             knightModel.getSelectedKnight(),
                             disciplineModel.getSelectedDiscipline(),
-                            Integer.valueOf(startNum.getText()),
+                            startNumber,
                             null);
                 } else {
                     editable = new Match(
                             null,
                             knightModel.getSelectedKnight(),
                             disciplineModel.getSelectedDiscipline(),
-                            Integer.valueOf(startNum.getText()),
-                            Integer.valueOf(points.getText()));
+                            startNumber,
+                            pointNum);
                 }
             }
             if (listener != null) {
@@ -208,7 +241,10 @@ public class MatchForm {
         public void setSelectedItem(Object anObject) {
             if ((selectedObject != null && !selectedObject.equals(anObject))
                     || selectedObject == null && anObject != null) {
-                selectedObject = objects.get(namesToIndexes.get((String) anObject));
+                Integer index = namesToIndexes.get((String) anObject);
+                if (index != null) {
+                    selectedObject = objects.get(index);
+                }
                 fireContentsChanged(this, -1, -1);
             }
         }
@@ -259,7 +295,10 @@ public class MatchForm {
         public void setSelectedItem(Object anObject) {
             if ((selectedObject != null && !selectedObject.equals(anObject))
                     || selectedObject == null && anObject != null) {
-                selectedObject = objects.get(namesToIndexes.get((String) anObject));
+                Integer index = namesToIndexes.get((String) anObject);
+                if (index != null) {
+                    selectedObject = objects.get(index);
+                }
                 fireContentsChanged(this, -1, -1);
             }
         }

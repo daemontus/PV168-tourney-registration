@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.table.AbstractTableModel;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,10 @@ public class KnightTableModel extends AbstractTableModel {
         columnMapping.add(new TableColumn<Knight>() {
             @Override
             public Object getProperty(Knight value) {
-                return value.getBorn().toString();
+               // TimeZone tz = TimeZone.getTimeZone("GMT");
+                DateFormat full = DateFormat.getDateInstance();
+               // full.setTimeZone(tz);
+                return full.format(value.getBorn());
             }
 
             @Override

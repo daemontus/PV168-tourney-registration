@@ -1,6 +1,7 @@
 package fi.muni.pv168.ui.table.model;
 
 import fi.muni.pv168.Match;
+import fi.muni.pv168.ui.resources.Resources;
 import fi.muni.pv168.ui.table.TableColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,11 @@ public class MatchTableModel extends AbstractTableModel {
         columnMapping.add(new TableColumn<Match>() {
             @Override
             public Object getProperty(Match value) {
-                return value.getKnight().getName();
+                if (value.getKnight() != null) {
+                    return value.getKnight().getName();
+                } else {
+                    return Resources.getString("deleted");
+                }
             }
 
             @Override
@@ -35,7 +40,11 @@ public class MatchTableModel extends AbstractTableModel {
         columnMapping.add(new TableColumn<Match>() {
             @Override
             public Object getProperty(Match value) {
-                return value.getDiscipline().getName();
+                if (value.getDiscipline() != null) {
+                    return value.getDiscipline().getName();
+                } else {
+                    return Resources.getString("deleted");
+                }
             }
 
             @Override
