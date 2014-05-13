@@ -87,9 +87,7 @@ public class DisciplineManagerImpl implements DisciplineManager {
             logger.info("Discipline successfully created: "+discipline);
 
         } catch (SQLException ex) {
-            String message = "Error inserting discipline into db";
-            logger.error(message, ex);
-            throw new ServiceFailureException(message, ex);
+            throw logException("Error inserting discipline into db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -139,9 +137,7 @@ public class DisciplineManagerImpl implements DisciplineManager {
             }
 
         } catch (SQLException ex) {
-            String message = "Error getting discipline with id = " + id + " from DB";
-            logger.error(message, ex);
-            throw new ServiceFailureException(message, ex);
+            throw logException("Error getting discipline with id = " + id + " from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -177,9 +173,7 @@ public class DisciplineManagerImpl implements DisciplineManager {
 
             return result;
         } catch (SQLException ex) {
-            String msg = "Error when getting all disciplines from DB";
-            logger.error(msg, ex);
-            throw new ServiceFailureException(msg, ex);
+            throw logException("Error when getting all disciplines from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -225,9 +219,7 @@ public class DisciplineManagerImpl implements DisciplineManager {
             logger.debug("Retrieved "+result.size()+" disciplines from database by date: "+day);
             return result;
         } catch (SQLException ex) {
-            String msg = "Error when getting disciplines from DB";
-            logger.error(msg, ex);
-            throw new ServiceFailureException(msg, ex);
+            throw logException("Error when getting disciplines from DB", ex);
         } finally {
             DBUtils.closeQuietly(conn, st);
         }
@@ -281,9 +273,7 @@ public class DisciplineManagerImpl implements DisciplineManager {
             logger.info("Discipline updated: "+discipline);
 
         } catch (SQLException ex) {
-            String message = "Error updating discipline in the db";
-            logger.error(message, ex);
-            throw new ServiceFailureException(message, ex);
+            throw logException("Error updating discipline in the db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -327,9 +317,7 @@ public class DisciplineManagerImpl implements DisciplineManager {
             logger.info("Discipline deleted: "+discipline);
 
         } catch (SQLException ex) {
-            String message = "Error deleting discipline from the db";
-            logger.error(message, ex);
-            throw new ServiceFailureException(message, ex);
+            throw logException("Error deleting discipline from the db", ex);
         } finally {
             DBUtils.doRollbackQuietly(conn);
             DBUtils.closeQuietly(conn, st);
@@ -371,6 +359,11 @@ public class DisciplineManagerImpl implements DisciplineManager {
         if (discipline.getStart().after(discipline.getEnd())) {
             throw new IllegalArgumentException("Discipline with negative duration. (start > end)");
         }
+    }
+
+    private ServiceFailureException logException(String message, Exception ex) {
+        logger.error(message, ex);
+        return new ServiceFailureException(message, ex);
     }
 
 }
