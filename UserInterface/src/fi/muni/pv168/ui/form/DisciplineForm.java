@@ -1,6 +1,6 @@
 package fi.muni.pv168.ui.form;
 
-import net.sourceforge.jdatepicker.JDatePicker;
+import fi.muni.pv168.Discipline;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 import net.sourceforge.jdatepicker.impl.SqlDateModel;
@@ -8,11 +8,30 @@ import net.sourceforge.jdatepicker.impl.SqlDateModel;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Date;
+import java.sql.Timestamp;
 
-public class EditDiscipline {
+public class DisciplineForm {
 
+    private Discipline editable;
 
-    public EditDiscipline() {
+    private FormResultListener<Discipline> listener;
+
+    private JTextField name;
+    private JDatePickerImpl startDate;
+    private JDatePickerImpl endDate;
+    private JSpinner startTime;
+    private JSpinner endTime;
+    private JTextField maxParticipants;
+
+    private JFrame frame;
+
+    public DisciplineForm(FormResultListener<Discipline> listener) {
+        this(null, listener);
+    }
+    public DisciplineForm(Discipline editable, FormResultListener<Discipline> listener) {
+        this.editable = editable;
+        this.listener = listener;
+
         EventQueue.invokeLater(new Runnable() {
             public void run() {
 
@@ -38,16 +57,21 @@ public class EditDiscipline {
         constraints.anchor = GridBagConstraints.NORTH;
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField name = new JTextField();
-        name.setText("Prefilled");
-        JDatePicker startDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(100000000))));
-        JDatePicker endDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(1000000000))));
-        JSpinner startTime = buildTimeSpinner();
-        startTime.setValue(new Date(100000000));
-        JSpinner endTime = buildTimeSpinner();
-        endTime.setValue(new Date(1000000));
-        JTextField maxParticipants = new JTextField();
-        maxParticipants.setText("3");
+        name = new JTextField();
+        startTime = buildTimeSpinner();
+        endTime = buildTimeSpinner();
+        maxParticipants = new JTextField();
+
+        Timestamp start = new Timestamp(0);
+        Timestamp end = new Timestamp(1);
+        if (editable != null) {
+            name.setText(editable.getName());
+            start = editable.getStart();
+            end = editable.getEnd();
+            maxParticipants.setText(String.valueOf(editable.getMaxParticipants()));
+        }
+        startDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(start.getTime()))));
+        endDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(end.getTime()))));
 
         JLabel title = new JLabel("Edit Discipline");
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, (int) (title.getFont().getSize() * 1.5)));
