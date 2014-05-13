@@ -80,7 +80,6 @@ public class DisciplineForm {
             endTime.getModel().setValue(new Date(end.getTime()));
             maxParticipants.setText(String.valueOf(editable.getMaxParticipants()));
         }
-        System.out.println(start.getTime()+" "+end.getTime());
         startDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(start.getTime()))));
         endDate = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(new Date(end.getTime()))));
 
@@ -179,9 +178,26 @@ public class DisciplineForm {
     ActionListener submit = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            long start = ((Date) startDate.getModel().getValue()).getTime() + ((java.util.Date)startTime.getModel().getValue()).getTime() % MILLIS_IN_DAY;
-            long end = ((Date) endDate.getModel().getValue()).getTime() + ((java.util.Date)endTime.getModel().getValue()).getTime() % MILLIS_IN_DAY;
-            System.out.println(start+" "+end);
+
+            //combine start time from inputs
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(((java.util.Date)startTime.getModel().getValue()).getTime());
+            Calendar startD = Calendar.getInstance();
+            startD.setTimeInMillis(((Date) startDate.getModel().getValue()).getTime());
+            startD.add(Calendar.HOUR, calendar.get(Calendar.HOUR));
+            startD.add(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
+            startD.add(Calendar.SECOND, calendar.get(Calendar.SECOND));
+            long start = startD.getTimeInMillis();
+
+            //combine end time from inputs
+            calendar.setTimeInMillis(((java.util.Date)endTime.getModel().getValue()).getTime());
+            startD = Calendar.getInstance();
+            startD.setTimeInMillis(((Date) endDate.getModel().getValue()).getTime());
+            startD.add(Calendar.HOUR, calendar.get(Calendar.HOUR));
+            startD.add(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
+            startD.add(Calendar.SECOND, calendar.get(Calendar.SECOND));
+            long end = startD.getTimeInMillis();
+
             //validate form
             if (name.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null, Resources.getString("name_too_short"));
