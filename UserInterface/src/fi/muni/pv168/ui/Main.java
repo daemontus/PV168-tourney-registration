@@ -1,12 +1,14 @@
 package fi.muni.pv168.ui;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class Main {
 
-    //How to start DB: java -jar /Applications/NetBeans/glassfish-4.0/javadb/lib/derbyrun.jar server start
-
-
     public static void main(String[] args) {
+        ResourceBundle localeStrings = ResourceBundle.getBundle("strings", Locale.getDefault());
+        //System.out.println(localeStrings.getString("delete_knight"));
+
         new HomeScreen();
     }
-
 }

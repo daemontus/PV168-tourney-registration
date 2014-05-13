@@ -1,55 +1,50 @@
 package fi.muni.pv168.ui.form;
 
-import fi.muni.pv168.Knight;
+import fi.muni.pv168.Match;
 import fi.muni.pv168.ui.resources.Resources;
-import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
-import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
-import net.sourceforge.jdatepicker.impl.SqlDateModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
 
-public class KnightForm {
+public class MatchForm {
 
-    private Knight editable;
+    private Match editable;
 
-    private FormResultListener<Knight> listener;
+    private FormResultListener<Match> listener;
 
-    private JTextField name;
-    private JTextField castle;
-    private JTextField heraldry;
-    private JDatePickerImpl born;
+    private JComboBox knight;
+    private JComboBox discipline;
+    private JTextField startNum;
+    private JTextField points;
 
     private JFrame frame;
 
-    public KnightForm(FormResultListener<Knight> listener) {
+    public MatchForm(FormResultListener<Match> listener) {
         this(null, listener);
     }
 
-    public KnightForm(Knight editable, FormResultListener<Knight> listener) {
+    public MatchForm(Match editable, FormResultListener<Match> listener) {
         this.editable = editable;
         this.listener = listener;
 
         EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
-
                 frame = new JFrame();
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.setMinimumSize(new Dimension(320, 235));
                 frame.setBounds(0, 0, 320, 235);
                 frame.setResizable(false);
-                frame.setTitle(Resources.getString("knight_editor"));
+                frame.setTitle(Resources.getString("match_editor"));
 
                 frame.add(initCreateForm());
-                // Zobrazíme okno
+
                 frame.setVisible(true);
             }
         });
-
     }
 
     private JPanel initCreateForm() {
@@ -59,20 +54,12 @@ public class KnightForm {
         constraints.anchor = GridBagConstraints.NORTH;
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        name = new JTextField();
-        castle = new JTextField();
-        heraldry = new JTextField();
+        knight = new JComboBox();
+        discipline = new JComboBox();
+        startNum = new JTextField();
+        points = new JTextField();
 
-        Date date = new Date(0);
-        if (editable != null) {
-            name.setText(editable.getName());
-            castle.setText(editable.getCastle());
-            heraldry.setText(editable.getHeraldry());
-            date = editable.getBorn();
-        }
-        born = new JDatePickerImpl(new JDatePanelImpl(new SqlDateModel(date)));
-
-        JLabel title = new JLabel(Resources.getString("knight_editor"));
+        JLabel title = new JLabel(Resources.getString("match_editor"));
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, (int) (title.getFont().getSize() * 1.5)));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -82,21 +69,21 @@ public class KnightForm {
         constraints.gridwidth = 2;
         panel.add(title, constraints);
 
-        JLabel nameLabel = new JLabel(Resources.getString("name"));
-        nameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        nameLabel.setLabelFor(name);
-        JLabel castleLabel = new JLabel(Resources.getString("castle"));
-        castleLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        castleLabel.setLabelFor(castle);
-        JLabel bornLabel = new JLabel(Resources.getString("born"));
-        bornLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        bornLabel.setLabelFor(born);
-        JLabel heraldryLabel = new JLabel(Resources.getString("heraldry"));
-        heraldryLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        heraldryLabel.setLabelFor(heraldry);
+        JLabel knightLabel = new JLabel(Resources.getString("knight"));
+        knightLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        knightLabel.setLabelFor(knight);
+        JLabel disciplineLabel = new JLabel(Resources.getString("discipline"));
+        disciplineLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        disciplineLabel.setLabelFor(discipline);
+        JLabel startNumLabel = new JLabel(Resources.getString("start_num"));
+        startNumLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        startNumLabel.setLabelFor(startNum);
+        JLabel pointsLabel = new JLabel(Resources.getString("points"));
+        pointsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        pointsLabel.setLabelFor(points);
 
         JComponent[] objects = new JComponent[ ] {
-                nameLabel, name, castleLabel, castle, bornLabel, born, heraldryLabel, heraldry
+                knightLabel, knight, disciplineLabel, discipline, startNumLabel, startNum, pointsLabel, points
         };
 
         constraints.gridwidth = 1;
@@ -122,13 +109,13 @@ public class KnightForm {
         constraints.insets = new Insets(10,10,10,10);
         constraints.weighty = 1;
         constraints.weightx = 0.5;
-        constraints.weighty = 0.5;
-        JButton button = new JButton(Resources.getString("cancel"));
-        button.addActionListener(cancel);
+        JButton button = new JButton(Resources.getString("save"));
+        button.addActionListener(submit);
         panel.add(button, constraints);
         constraints.gridx = 1;
-        button = new JButton(Resources.getString("save"));
-        button.addActionListener(submit);
+        constraints.weighty = 0.5;
+        button = new JButton(Resources.getString("cancel"));
+        button.addActionListener(cancel);
         panel.add(button, constraints);
 
         panel.setPreferredSize(new Dimension(320, 100));
@@ -150,12 +137,14 @@ public class KnightForm {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
             if (editable != null) {
-                editable.setName(name.getText());
-                editable.setCastle(castle.getText());
-                editable.setBorn((Date) born.getModel().getValue());
-                editable.setHeraldry(heraldry.getText());
+                //TODO: solve this freaking awesome ComboBoxesssss!
+                    /*editable.setKnigh(editable.getKnight());
+                    editable.setDiscipline(castle.getText());*/
+                editable.setStartNumber(Integer.parseInt(startNum.getText()));
+                editable.setPoints(Integer.parseInt(points.getText()));
             } else {
-                editable = new Knight(null, name.getText(), castle.getText(), (Date) born.getModel().getValue(), heraldry.getText());
+                //TODO: same here
+                //editable = new Match (null, name.getText(), castle.getText(), (Date) born.getModel().getValue(), heraldry.getText());
             }
             if (listener != null) {
                 listener.onSubmit(editable);

@@ -257,8 +257,8 @@ public class KnightTab implements Tab {
 
         private Knight toCreate;
 
-        private CreateKnight(Knight victim) {
-            this.toCreate = victim;
+        private CreateKnight(Knight toCreate) {
+            this.toCreate = toCreate;
         }
 
         @Override
